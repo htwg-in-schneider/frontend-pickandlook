@@ -4,11 +4,19 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container">
         <RouterLink class="navbar-brand d-flex align-items-center gap-2" to="/">
-          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
-            <path d="M14 2 L24 10 L14 26 L4 10 Z" fill="#7C3AED" opacity="0.7"/>
-            <path d="M14 6 L21 11 L14 22 L7 11 Z" fill="#22D3EE"/>
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+            <!-- Äußerer lila Diamant -->
+            <path d="M20 1 L39 20 L20 39 L1 20 Z" fill="#7C3AED"/>
+            <!-- Mittlerer cyan Diamant (6px Abstand = gleich breit wie lila) -->
+            <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
+            <!-- Innerer weißer Diamant (etwas kleiner) -->
+            <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
           </svg>
-          <span><span class="text-purple">Pick</span> <span class="text-white">and</span> <span class="text-cyan">Look</span></span>
+          <span style="font-size:1.25rem; font-weight:700;">
+            <span style="color:#A855F7;">Pick</span>
+            <span style="color:#ffffff;"> and </span>
+            <span style="color:#22D3EE;">Look</span>
+          </span>
         </RouterLink>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
@@ -38,8 +46,6 @@
       <RouterView />
     </main>
 
-    <!-- Bootstrap JS (Hamburger-Menü) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </div>
 </template>
 

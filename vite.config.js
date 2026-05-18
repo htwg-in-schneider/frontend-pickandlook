@@ -3,6 +3,8 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
+  base: '/frontend-pickandlook/',
+
   server: {
     port: 5173
   }

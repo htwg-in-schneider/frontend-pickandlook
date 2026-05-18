@@ -1,11 +1,16 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import vueDevTools from 'vite-plugin-vue-devtools'
+
+const repoName = '/frontend-pickandlook/'
 
 export default defineConfig({
-  plugins: [vue()],
-  base: '/frontend-pickandlook/',
+  base: process.env.NODE_ENV === 'production'
+    ? repoName
+    : '/',
 
-  server: {
-    port: 5173
-  }
+  plugins: [
+    vue(),
+    vueDevTools()
+  ]
 })

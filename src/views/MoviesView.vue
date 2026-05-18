@@ -74,7 +74,9 @@
       <div v-for="movie in movies" :key="movie.id" class="col-md-6 col-lg-4">
         <div class="card h-100 p-3">
           <div class="d-flex justify-content-between align-items-start mb-2">
-            <h5 class="mb-0">{{ movie.titel }}</h5>
+            <RouterLink :to="`/movies/${movie.id}`" class="text-decoration-none text-white">
+              <h5 class="mb-0" style="cursor:pointer;">{{ movie.titel }}</h5>
+            </RouterLink>
             <span class="badge" :class="movie.type === 'film' ? 'badge-purple' : 'badge-cyan'">
               {{ movie.type }}
             </span>

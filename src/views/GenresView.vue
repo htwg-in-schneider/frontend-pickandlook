@@ -2,26 +2,38 @@
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="mb-0">🎭 Genres</h2>
-      <RouterLink to="/genres/new" class="btn btn-primary">
+      <RouterLink v-if="isAdmin" to="/genres/new" class="btn btn-primary">
         <i class="bi bi-plus-lg me-1"></i>Neu
       </RouterLink>
+    </div>
+
+    <!-- Suche -->
+    <div class="card p-3 mb-4">
+      <div class="input-group">
+        <span class="input-group-text bg-dark border-secondary text-white">
+          <i class="bi bi-search"></i>
+        </span>
+        <input v-model="searchTerm" type="text" class="form-control" placeholder="Genre suchen…" />
+        <button @click="searchTerm = ''" class="btn btn-outline-light">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
     </div>
 
     <div v-if="loading" class="text-center py-5">
       <div class="spinner-border" style="color:#7C3AED"></div>
     </div>
     <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
-    <div v-else-if="genres.length === 0" class="text-center py-5 text-secondary">
-      Noch keine Genres vorhanden.
+    <div v-else-if="filteredGenres.length === 0" class="text-center py-5 text-secondary">
+      Keine Genres gefunden.
     </div>
 
-    <!-- Aufgabe a) – Genre-Liste -->
     <div v-else class="row g-3">
-      <div v-for="genre in genres" :key="genre.id" class="col-md-6 col-lg-4">
+      <div v-for="genre in filteredGenres" :key="genre.id" class="col-md-6 col-lg-4">
         <div class="card p-3">
           <h5 class="mb-1">{{ genre.name }}</h5>
           <p v-if="genre.description" class="text-secondary small mb-3">{{ genre.description }}</p>
-          <div class="d-flex gap-2 mt-auto">
+          <div v-if="isAdmin" class="d-flex gap-2 mt-auto">
             <RouterLink :to="`/genres/${genre.id}/edit`" class="btn btn-sm btn-outline-light flex-fill">
               <i class="bi bi-pencil me-1"></i>Bearbeiten
             </RouterLink>
@@ -37,7 +49,7 @@
     <div v-if="toDelete" class="modal-backdrop-custom" @click.self="toDelete = null">
       <div class="modal-box">
         <h5>Genre löschen?</h5>
-        <p class="text-secondary">„{{ toDelete.name }}" wird gelöscht. Zugeordnete Filme behalten ihr Genre.</p>
+        <p class="text-secondary">„{{ toDelete.name }}" wird gelöscht.</p>
         <div class="d-flex gap-2 justify-content-end mt-3">
           <button @click="toDelete = null" class="btn btn-outline-light">Abbrechen</button>
           <button @click="doDelete" class="btn btn-danger">Löschen</button>
@@ -48,13 +60,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useAuth0 } from '@auth0/auth0-vue'
 import { getGenres, deleteGenre } from '../services/api.js'
 
-const genres   = ref([])
-const loading  = ref(true)
-const error    = ref(null)
-const toDelete = ref(null)
+const { user } = useAuth0()
+const isAdmin = computed(() => {
+  const roles = user.value?.['https://pickandlook.com/roles'] || []
+  return roles.includes('admin')
+})
+
+const genres     = ref([])
+const loading    = ref(true)
+const error      = ref(null)
+const toDelete   = ref(null)
+const searchTerm = ref('')
+
+const filteredGenres = computed(() =>
+  genres.value.filter(g =>
+    g.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+  )
+)
 
 async function load() {
   loading.value = true

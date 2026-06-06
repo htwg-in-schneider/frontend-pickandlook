@@ -2,7 +2,7 @@
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <h2 class="mb-0">🎬 Filme &amp; Serien</h2>
-      <RouterLink to="/movies/new" class="btn btn-primary">
+      <RouterLink v-if="isAdmin" to="/movies/new" class="btn btn-primary">
         <i class="bi bi-plus-lg me-1"></i>Neu
       </RouterLink>
     </div>
@@ -96,14 +96,23 @@
             </span>
           </div>
 
-          <!-- Aufgabe a) – Edit / Delete -->
+          <!-- Merken + Edit + Delete -->
           <div class="d-flex gap-2 mt-auto">
-            <RouterLink :to="`/movies/${movie.id}/edit`" class="btn btn-sm btn-outline-light flex-fill">
-              <i class="bi bi-pencil me-1"></i>Bearbeiten
-            </RouterLink>
-            <button @click="confirmDelete(movie)" class="btn btn-sm btn-outline-danger flex-fill">
-              <i class="bi bi-trash me-1"></i>Löschen
+            <button v-if="isAuthenticated"
+                    @click="toggleWatchlist(movie)"
+                    class="btn btn-sm flex-fill"
+                    :class="watchlistStore.isInWatchlist(movie.id) ? 'btn-warning' : 'btn-outline-warning'">
+              <i :class="watchlistStore.isInWatchlist(movie.id) ? 'bi bi-bookmark-fill' : 'bi bi-bookmark'"></i>
+              {{ watchlistStore.isInWatchlist(movie.id) ? 'Gemerkt' : 'Merken' }}
             </button>
+            <template v-if="isAdmin">
+              <RouterLink :to="`/movies/${movie.id}/edit`" class="btn btn-sm btn-outline-light flex-fill">
+                <i class="bi bi-pencil me-1"></i>Bearbeiten
+              </RouterLink>
+              <button @click="confirmDelete(movie)" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash"></i>
+              </button>
+            </template>
           </div>
         </div>
       </div>
@@ -124,8 +133,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useAuth0 } from '@auth0/auth0-vue'
 import { getMovies, deleteMovie, getGenres } from '../services/api.js'
+import { useWatchlistStore } from '../stores/watchlist.js'
+
+const { isAuthenticated, user } = useAuth0()
+const watchlistStore = useWatchlistStore()
+
+const isAdmin = computed(() => {
+  const roles = user.value?.['https://pickandlook.com/roles'] || []
+  return roles.includes('admin')
+})
 
 const movies  = ref([])
 const genres  = ref([])
@@ -171,9 +190,21 @@ async function doDelete() {
   }
 }
 
+async function toggleWatchlist(movie) {
+  if (!user.value) return
+  if (watchlistStore.isInWatchlist(movie.id)) {
+    await watchlistStore.remove(user.value.sub, movie.id)
+  } else {
+    await watchlistStore.add(user.value.sub, movie.id)
+  }
+}
+
 onMounted(async () => {
   const [, genreRes] = await Promise.all([search(), getGenres()])
   genres.value = genreRes.data
+  if (isAuthenticated.value && user.value) {
+    await watchlistStore.load(user.value.sub)
+  }
 })
 </script>
 

@@ -1,11 +1,32 @@
 import axios from 'axios'
 
-// Backend URL – für Produktion auf render.com-URL ändern
+// Backend URL
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' }
+})
+
+// Token-Funktion – wird von main.js gesetzt
+let getToken = null
+export function setTokenGetter(fn) {
+  getToken = fn
+}
+
+// Interceptor – fügt JWT Token zu jeder Anfrage hinzu
+api.interceptors.request.use(async (config) => {
+  if (getToken) {
+    try {
+      const token = await getToken()
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
+    } catch (e) {
+      // Kein Token vorhanden (nicht eingeloggt) – weiter ohne Token
+    }
+  }
+  return config
 })
 
 // ── Movies ──────────────────────────────────────────

@@ -59,7 +59,7 @@
 
         <!-- Buttons -->
         <div class="d-flex gap-3 mt-2">
-          <RouterLink :to="`/movies/${movie.id}/edit`" class="btn btn-primary px-4">
+          <RouterLink v-if="isAdmin" :to="`/movies/${movie.id}/edit`" class="btn btn-primary px-4">
             <i class="bi bi-pencil me-1"></i>Bearbeiten
           </RouterLink>
           <RouterLink to="/movies" class="btn btn-outline-light">
@@ -73,9 +73,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuth0 } from '@auth0/auth0-vue'
 import { getMovie } from '../services/api.js'
+
+const { user } = useAuth0()
+const isAdmin = computed(() => {
+  const roles = user.value?.['https://pickandlook.com/roles'] || []
+  return roles.includes('admin')
+})
 
 const route   = useRoute()
 const movie   = ref(null)

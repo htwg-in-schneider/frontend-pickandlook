@@ -107,36 +107,18 @@
 <script setup>
 import { computed } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
 
 const { isAuthenticated, user, loginWithRedirect, logout } = useAuth0()
 
+// Prüft ob der eingeloggte User die Admin-Rolle hat (gesetzt via Auth0 Action)
 const isAdmin = computed(() => {
   const roles = user.value?.['https://pickandlook.com/roles'] || []
   return roles.includes('admin')
 })
 
 function handleLogout() {
+  // returnTo muss den vollen Pfad enthalten, damit Auth0 auf GitHub Pages korrekt zurückleitet
   logout({ logoutParams: { returnTo: window.location.origin + import.meta.env.BASE_URL } })
-}
-
-function scrollToKontakt() {
-  if (router.currentRoute.value.path !== '/') {
-    router.push('/').then(() => {
-      setTimeout(() => {
-        document.getElementById('kontakt')?.scrollIntoView({ behavior: 'smooth' })
-      }, 600)
-    })
-  } else {
-    const el = document.getElementById('kontakt')
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
-    } else {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
-    }
-  }
 }
 </script>
 

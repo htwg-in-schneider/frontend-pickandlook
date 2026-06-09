@@ -114,11 +114,9 @@
 <script setup>
 import { computed, watch, ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import axios from 'axios'
+import { getWatchlistAdmin } from '../services/api.js'
 
 const { isAuthenticated, user } = useAuth0()
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 const isAdmin = computed(() => {
   const roles = user.value?.['https://pickandlook.com/roles'] || []
@@ -130,7 +128,7 @@ const loadingWatchlist = ref(true)
 
 async function loadWatchlistEntries() {
   try {
-    const res = await axios.get(`${API}/api/watchlist/admin/all`)
+    const res = await getWatchlistAdmin()
     watchlistEntries.value = res.data
   } catch (e) {
     console.error('Fehler beim Laden der Merklisten', e)

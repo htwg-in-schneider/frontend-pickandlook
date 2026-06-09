@@ -56,11 +56,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import axios from 'axios'
+import { getUserProfile, updateUserProfile } from '../services/api.js'
 
 const { user } = useAuth0()
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -77,12 +75,7 @@ const form = ref({
 
 onMounted(async () => {
   try {
-    const res = await axios.get(`${API}/api/users/me`, {
-      params: {
-        sub:   user.value.sub,
-        email: user.value.email
-      }
-    })
+    const res = await getUserProfile(user.value.sub, user.value.email)
     form.value = {
       name:    res.data.name    || '',
       email:   res.data.email   || user.value.email || '',
@@ -102,9 +95,7 @@ async function save() {
   success.value = false
   error.value   = null
   try {
-    await axios.put(`${API}/api/users/me`, form.value, {
-      params: { sub: user.value.sub }
-    })
+    await updateUserProfile(user.value.sub, form.value)
     success.value = true
     setTimeout(() => success.value = false, 3000)
   } catch (e) {

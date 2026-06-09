@@ -70,3 +70,29 @@ export function updateGenre(id, data) {
 export function deleteGenre(id) {
   return api.delete(`/api/genres/${id}`)
 }
+
+// ── Watchlist ────────────────────────────────────────
+export function getWatchlist(sub) {
+  return api.get('/api/watchlist', { params: { sub } })
+}
+
+export function addToWatchlist(sub, movieId) {
+  return api.post('/api/watchlist', { movieId }, { params: { sub } })
+}
+
+export function removeFromWatchlist(sub, movieId) {
+  return api.delete(`/api/watchlist/${movieId}`, { params: { sub } })
+}
+
+export function getWatchlistAdmin() {
+  return api.get('/api/watchlist/admin/all')
+}
+
+// ── User Profile ─────────────────────────────────────
+export function getUserProfile(sub, email = '') {
+  return api.get('/api/users/me', { params: { sub, email } })
+}
+
+export function updateUserProfile(sub, data) {
+  return api.put('/api/users/me', data, { params: { sub } })
+}

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="display:flex; flex-direction:column; min-height:100vh;">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container">
@@ -26,10 +26,7 @@
         <div class="collapse navbar-collapse" id="navMenu">
           <ul class="navbar-nav ms-auto align-items-center gap-2">
             <li class="nav-item">
-              <RouterLink class="nav-link" to="/movies">Filme</RouterLink>
-            </li>
-            <li class="nav-item">
-              <RouterLink class="nav-link" to="/genres">Genres</RouterLink>
+              <RouterLink class="nav-link" to="/movies">Filme &amp; Serien</RouterLink>
             </li>
 
             <!-- Admin-Bereich nur für eingeloggte Admins -->
@@ -73,7 +70,7 @@
     </nav>
 
     <!-- Seiten-Inhalt -->
-    <main class="container py-4">
+    <main class="container py-4" style="flex:1;">
       <RouterView />
     </main>
 

@@ -20,7 +20,7 @@
             <RouterLink to="/movies" class="btn btn-primary btn-lg">
               Jetzt loslegen
             </RouterLink>
-            <a href="#kontakt" class="btn btn-outline-light btn-lg">Mehr Erfahren</a>
+            <a href="#features" class="btn btn-outline-light btn-lg">Mehr Erfahren</a>
           </div>
         </div>
 
@@ -49,7 +49,7 @@
     </section>
 
     <!-- Was macht Pick and Look besonders -->
-    <section class="mb-5 text-center">
+    <section id="features" class="mb-5 text-center">
       <h2 class="fw-bold mb-2">Was Pick and Look <span class="text-purple">besonders</span> macht</h2>
       <p class="text-muted mb-5">Nicht nur eine weitere Empfehlungs-App – ein intelligenter Filmbegleiter</p>
       <div class="row g-4">
@@ -106,7 +106,7 @@
       <p class="text-warning-light mb-4">Kostenlos registrieren. Kein Abo nötig. Sofort loslegen</p>
       <div class="d-flex justify-content-center gap-3 flex-wrap">
         <RouterLink to="/movies" class="btn btn-warning btn-lg fw-semibold">Jetzt kostenlos Starten</RouterLink>
-        <a href="#kontakt" class="btn btn-outline-warning btn-lg">Mehr erfahren</a>
+        <a href="#features" class="btn btn-outline-warning btn-lg">Mehr erfahren</a>
       </div>
     </section>
 

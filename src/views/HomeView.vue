@@ -20,7 +20,7 @@
             <RouterLink to="/movies" class="btn btn-primary btn-lg">
               Jetzt loslegen
             </RouterLink>
-            <a href="#features" class="btn btn-outline-light btn-lg">Mehr Erfahren</a>
+            <a @click.prevent="scrollToFeatures" href="#" class="btn btn-outline-light btn-lg">Mehr Erfahren</a>
           </div>
         </div>
 
@@ -106,7 +106,7 @@
       <p class="text-warning-light mb-4">Kostenlos registrieren. Kein Abo nötig. Sofort loslegen</p>
       <div class="d-flex justify-content-center gap-3 flex-wrap">
         <RouterLink to="/movies" class="btn btn-warning btn-lg fw-semibold">Jetzt kostenlos Starten</RouterLink>
-        <a href="#features" class="btn btn-outline-warning btn-lg">Mehr erfahren</a>
+        <a @click.prevent="scrollToFeatures" href="#" class="btn btn-outline-warning btn-lg">Mehr erfahren</a>
       </div>
     </section>
 
@@ -152,6 +152,10 @@ const { isAuthenticated, loginWithRedirect } = useAuth0()
 
 const sent = ref(false)
 const contact = ref({ name: '', email: '', message: '' })
+
+function scrollToFeatures() {
+  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
+}
 
 function sendContact() {
   const subject = encodeURIComponent('Kontaktanfrage von ' + contact.value.name)

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pick and Look – Dokumentation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: #fff;
+      padding: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ── Titelseite ── */
+    .cover {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      text-align: center;
+      page-break-after: always;
+    }
+    .cover-logo {
+      font-size: 42pt;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .cover-logo .pick { color: #7C3AED; }
+    .cover-logo .look { color: #22D3EE; }
+    .cover-subtitle {
+      font-size: 13pt;
+      color: #555;
+      margin-bottom: 40px;
+    }
+    .cover-meta {
+      font-size: 11pt;
+      color: #444;
+      line-height: 2;
+    }
+    .cover-rule {
+      width: 120px;
+      border: none;
+      border-top: 3px solid #7C3AED;
+      margin: 24px auto;
+    }
+
+    /* ── Überschriften ── */
+    h1 {
+      font-size: 18pt;
+      color: #7C3AED;
+      border-bottom: 2px solid #7C3AED;
+      padding-bottom: 6px;
+      margin: 36px 0 16px;
+    }
+    h2 {
+      font-size: 14pt;
+      color: #1a1a1a;
+      margin: 28px 0 10px;
+      border-left: 4px solid #22D3EE;
+      padding-left: 10px;
+    }
+    h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #7C3AED;
+      margin: 18px 0 6px;
+    }
+
+    p { margin-bottom: 10px; }
+
+    /* ── Tabellen ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px;
+      font-size: 10pt;
+    }
+    th {
+      background: #7C3AED;
+      color: #fff;
+      text-align: left;
+      padding: 8px 10px;
+    }
+    td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #e0e0e0;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #f7f4ff; }
+
+    /* ── Info-Boxen ── */
+    .info-box {
+      background: #f0f4ff;
+      border-left: 4px solid #7C3AED;
+      padding: 12px 16px;
+      margin: 12px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .info-box.cyan { border-left-color: #22D3EE; background: #f0fbff; }
+    .info-box.green { border-left-color: #10b981; background: #f0fff8; }
+    .info-box.orange { border-left-color: #f59e0b; background: #fffbf0; }
+
+    /* ── Tags ── */
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 9pt;
+      font-weight: 600;
+      margin: 2px;
+    }
+    .tag-purple { background: #ede9fe; color: #7C3AED; }
+    .tag-cyan   { background: #cffafe; color: #0e7490; }
+    .tag-green  { background: #d1fae5; color: #065f46; }
+    .tag-red    { background: #fee2e2; color: #991b1b; }
+
+    /* ── Seitenumbruch ── */
+    .page-break { page-break-before: always; }
+
+    /* ── Persona ── */
+    .persona {
+      border: 1px solid #e0d6ff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 16px;
+    }
+    .persona-left { border-right: 1px solid #e0d6ff; padding-right: 16px; }
+    .persona-name { font-size: 13pt; font-weight: 700; color: #7C3AED; }
+    .persona-role { font-size: 10pt; color: #555; margin-bottom: 8px; }
+    .persona-attr { font-size: 10pt; line-height: 1.8; color: #444; }
+
+    code {
+      background: #f0f0f0;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 10pt;
+    }
+
+    ul { padding-left: 20px; margin-bottom: 10px; }
+    li { margin-bottom: 4px; }
+
+    /* ── Credentials ── */
+    .cred-table th { background: #059669; }
+    .cred-table tr:nth-child(even) td { background: #f0fff8; }
+
+    .url-box {
+      background: #1a1a2e;
+      color: #22D3EE;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 11pt;
+      margin: 8px 0;
+      word-break: break-all;
+    }
+
+    @media print {
+      body { padding: 20px; }
+      .cover { min-height: 60vh; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     TITELSEITE
+════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-logo">
+    <span class="pick">Pick</span> and <span class="look">Look</span>
+  </div>
+  <div class="cover-subtitle">Plattformübergreifende Film- und Serienempfehlungen</div>
+  <hr class="cover-rule"/>
+  <div class="cover-meta">
+    <strong>Dokumentation – Webtechnologien</strong><br/>
+    Hochschule Konstanz – HTWG<br/>
+    <br/>
+    Chiamaka Chuba &amp; Anna Schätzle<br/>
+    <br/>
+    Sommersemester 2026
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     ABSCHNITT A: SPEZIFIKATION & DESIGN
+════════════════════════════════════ -->
+<h1>a) Spezifikation und Design</h1>
+
+<h2>1. Ziel der Anwendung</h2>
+<p>
+  <strong>Pick and Look</strong> ist eine webbasierte Anwendung, die Nutzern eine
+  plattformunabhängige Anlaufstelle bietet, um schnell und gezielt passende Filme und
+  Serien zu entdecken – unabhängig davon, auf welchem Streaming-Dienst diese verfügbar sind.
+  Im Gegensatz zu einzelnen Streaming-Plattformen, die ausschließlich ihren eigenen
+  Katalog empfehlen, ermöglicht Pick and Look stimmungs- und interessenbasierte
+  Empfehlungen über verschiedene Anbieter hinweg.
+</p>
+
+<h2>2. Personas</h2>
+
+<div class="persona">
+  <div class="persona-left">
+    <div class="persona-name">Lara Schneider</div>
+    <div class="persona-role">Studentin (Webdesign)</div>
+    <div class="persona-attr">
+      Alter: 22<br/>
+      Wohnort: Köln<br/><br/>
+      <span class="tag tag-purple">Netflix</span>
+      <span class="tag tag-purple">Prime Video</span>
+      <span class="tag tag-purple">Disney+</span>
+    </div>
+  </div>
+  <div>
+    <p><strong>Ziel:</strong> Lara möchte nach einem langen Unitag schnell einen Film oder eine Serie finden, die zu ihrer aktuellen Stimmung passt. Sie möchte nicht lange durch verschiedene Plattformen scrollen.</p>
+    <p><strong>Frustration:</strong> Sie verliert viel Zeit durch unübersichtliche Kataloge und unpassende Standardempfehlungen.</p>
+    <p><strong>Motivation:</strong> Mit wenig Aufwand schnell unterhaltsame und passende Inhalte entdecken.</p>
+  </div>
+</div>
+
+<div class="persona">
+  <div class="persona-left">
+    <div class="persona-name">Tobias Weber</div>
+    <div class="persona-role">Angestellter im Vertrieb</div>
+    <div class="persona-attr">
+      Alter: 31<br/>
+      Wohnort: Hamburg<br/><br/>
+      <span class="tag tag-cyan">Abends</span>
+      <span class="tag tag-cyan">Wochenende</span>
+    </div>
+  </div>
+  <div>
+    <p><strong>Ziel:</strong> Tobias möchte Inhalte finden, die seinem Geschmack entsprechen und gleichzeitig für gemeinsame Filmabende mit seiner Partnerin geeignet sind.</p>
+    <p><strong>Frustration:</strong> Er ist genervt davon, dass Plattformen oft ähnliche oder bereits bekannte Inhalte vorschlagen.</p>
+    <p><strong>Motivation:</strong> Schneller neue, interessante und passende Serien oder Filme entdecken.</p>
+  </div>
+</div>
+
+<h2>3. Use Case Übersicht</h2>
+<p>
+  Die folgende Tabelle zeigt alle geplanten Use Cases und deren Implementierungsstatus
+  in der finalen Anwendung. Das originale Use-Case-Diagramm enthielt 11 Use Cases;
+  in der tatsächlichen Implementierung wurden die wesentlichen Kernfunktionen umgesetzt.
+</p>
+
+<table>
+  <tr>
+    <th>#</th>
+    <th>Use Case</th>
+    <th>Akteure</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>UC1</td>
+    <td>Registrieren / Einloggen</td>
+    <td>Alle Benutzer</td>
+    <td><span class="tag tag-green">✓ Umgesetzt</span></td>
+  </tr>
+  <tr>
+    <td>UC2</td>
+    <td>Inhalt anzeigen (Filme &amp; Serien)</td>
+    <td>Alle Benutzer</td>
+    <td><span class="tag tag-green">✓ Umgesetzt</span></td>
+  </tr>
+  <tr>
+    <td>UC3</td>
+    <td>Inhalt filtern und suchen</td>
+    <td>Alle Benutzer</td>
+    <td><span class="tag tag-green">✓ Umgesetzt</span></td>
+  </tr>
+  <tr>
+    <td>UC4</td>
+    <td>Profil verwalten</td>
+    <td>Registrierter Benutzer</td>
+    <td><span class="tag tag-green">✓ Umgesetzt</span></td>
+  </tr>
+  <tr>
+    <td>UC5</td>
+    <td>Merkliste erstellen und verwalten</td>
+    <td>Registrierter Benutzer</td>
+    <td><span class="tag tag-green">✓ Umgesetzt</span></td>
+  </tr>
+  <tr>
+    <td>UC6</td>
+    <td>Inhalt verwalten (CRUD)</td>
+    <td>Admin</td>
+    <td><span class="tag tag-green">✓ Umgesetzt</span></td>
+  </tr>
+  <tr>
+    <td>UC7</td>
+    <td>Interessen auswählen</td>
+    <td>Registrierter Benutzer</td>
+    <td><span class="tag tag-red">– Nicht implementiert</span></td>
+  </tr>
+  <tr>
+    <td>UC8</td>
+    <td>Inhalt bewerten</td>
+    <td>Registrierter Benutzer</td>
+    <td><span class="tag tag-red">– Nicht implementiert</span></td>
+  </tr>
+  <tr>
+    <td>UC9</td>
+    <td>Anfrage senden</td>
+    <td>Alle Benutzer</td>
+    <td><span class="tag tag-red">– Nicht implementiert</span></td>
+  </tr>
+</table>
+
+<div class="info-box orange">
+  <strong>Hinweis zu nicht implementierten Use Cases:</strong> UC7 (Interessen auswählen), UC8 (Inhalt bewerten) und UC9 (Anfrage senden) wurden im Rahmen des verfügbaren Zeitrahmens nicht umgesetzt. Die Kernfunktionalität der Anwendung – Filmübersicht, Suche, Filterung, Merkliste und Administration – ist vollständig implementiert.
+</div>
+
+<h2>4. Use Cases (angepasst an tatsächliche Implementierung)</h2>
+
+<h3>UC1 – Registrieren / Einloggen</h3>
+<p><strong>Akteure:</strong> Alle Benutzer</p>
+<p><strong>Beschreibung:</strong> Die Authentifizierung wird vollständig über den externen Dienst Auth0 abgewickelt. Benutzer können sich mit E-Mail und Passwort registrieren oder einloggen. Auth0 übernimmt die Validierung der Zugangsdaten und verwaltet die Sitzung über JWT-Tokens. Nach erfolgreichem Login werden personalisierte Funktionen (Merkliste, Profil) freigeschaltet.</p>
+<table>
+  <tr><th>Benutzer Aktion</th><th>Ergebnis</th></tr>
+  <tr><td>Klick auf „Login" in der Navbar</td><td>Auth0-Login-Seite öffnet sich</td></tr>
+  <tr><td>Eingabe von E-Mail und Passwort</td><td>Weiterleitung zurück zur Anwendung, Benutzer ist eingeloggt</td></tr>
+  <tr><td>Klick auf „Logout"</td><td>Sitzung wird beendet, Weiterleitung zur Startseite</td></tr>
+</table>
+
+<h3>UC2 – Inhalt anzeigen</h3>
+<p><strong>Akteure:</strong> Alle Benutzer (kein Login erforderlich)</p>
+<p><strong>Beschreibung:</strong> Alle Benutzer können die vollständige Film- und Serienliste einsehen. Jeder Eintrag zeigt Titel, Typ (Film/Serie), Genre, Erscheinungsjahr und Durchschnittsbewertung. Per Klick auf einen Film öffnet sich die Detailansicht mit vollständiger Beschreibung.</p>
+<table>
+  <tr><th>Benutzer Aktion</th><th>Ergebnis</th></tr>
+  <tr><td>Klick auf „Filme" in der Navbar</td><td>Übersicht aller Filme und Serien</td></tr>
+  <tr><td>Klick auf einen Film</td><td>Detailansicht mit Beschreibung, Genre, Bewertung</td></tr>
+</table>
+
+<h3>UC3 – Inhalt filtern und suchen</h3>
+<p><strong>Akteure:</strong> Alle Benutzer</p>
+<p><strong>Beschreibung:</strong> Auf der Filmübersicht können Benutzer nach Titel suchen sowie nach Typ (Film/Serie), Genre, Erscheinungsjahr und Mindestbewertung filtern. Mehrere Filter können kombiniert werden. Das Backend führt die Filterung serverseitig durch.</p>
+<table>
+  <tr><th>Filter</th><th>Beschreibung</th></tr>
+  <tr><td>Titelsuche</td><td>Freitextsuche (case-insensitiv, Teilstring)</td></tr>
+  <tr><td>Typ</td><td>Film oder Serie</td></tr>
+  <tr><td>Genre</td><td>Auswahl aus vorhandenen Genres</td></tr>
+  <tr><td>Erscheinungsjahr</td><td>Von-Bis-Bereich</td></tr>
+  <tr><td>Mindestbewertung</td><td>0.0 – 10.0</td></tr>
+</table>
+
+<h3>UC4 – Profil verwalten</h3>
+<p><strong>Akteure:</strong> Registrierter Benutzer</p>
+<p><strong>Beschreibung:</strong> Eingeloggte Benutzer können ihr Profil mit persönlichen Daten (Name, Adresse, Stadt, Telefon) befüllen und aktualisieren. Die E-Mail-Adresse wird von Auth0 übernommen und kann nicht geändert werden. Die Daten werden im Backend in der Datenbank gespeichert.</p>
+<table>
+  <tr><th>Benutzer Aktion</th><th>Ergebnis</th></tr>
+  <tr><td>Klick auf den eigenen Namen in der Navbar</td><td>Profilseite mit Formular</td></tr>
+  <tr><td>Daten bearbeiten und „Speichern" klicken</td><td>Profil wird gespeichert, Erfolgsmeldung erscheint</td></tr>
+</table>
+
+<h3>UC5 – Merkliste erstellen und verwalten</h3>
+<p><strong>Akteure:</strong> Registrierter Benutzer</p>
+<p><strong>Beschreibung:</strong> Eingeloggte Benutzer können Filme und Serien zu ihrer persönlichen Merkliste hinzufügen oder davon entfernen. Die Merkliste ist benutzerspezifisch und wird über den Auth0-Sub-Identifier in der Datenbank gespeichert. Auf der Merklisten-Seite werden alle gespeicherten Einträge angezeigt.</p>
+<table>
+  <tr><th>Benutzer Aktion</th><th>Ergebnis</th></tr>
+  <tr><td>Klick auf „+ Merkliste" auf einem Film</td><td>Film wird zur Merkliste hinzugefügt</td></tr>
+  <tr><td>Klick auf „Merkliste" in der Navbar</td><td>Alle gemerkten Filme werden angezeigt</td></tr>
+  <tr><td>Klick auf „Entfernen" auf der Merkliste</td><td>Film wird aus der Merkliste gelöscht</td></tr>
+</table>
+
+<h3>UC6 – Inhalt verwalten (Admin)</h3>
+<p><strong>Akteure:</strong> Admin (ehemals „Mitarbeiter")</p>
+<p><strong>Beschreibung:</strong> Benutzer mit Admin-Rolle haben Zugriff auf den Admin-Bereich. Dort können Filme und Genres angelegt, bearbeitet und gelöscht werden (vollständiges CRUD). Zusätzlich können Admins eine Übersicht aller Merklisten-Einträge aller Benutzer einsehen. Die Admin-Rolle wird in Auth0 vergeben.</p>
+<table>
+  <tr><th>Benutzer Aktion</th><th>Ergebnis</th></tr>
+  <tr><td>Login als Admin → Klick auf „Admin" in Navbar</td><td>Admin-Übersicht mit Genre- und Film-Verwaltung</td></tr>
+  <tr><td>Klick auf „Film hinzufügen"</td><td>Formular zum Anlegen eines neuen Films</td></tr>
+  <tr><td>Klick auf „Bearbeiten" bei einem Film</td><td>Formular zum Bearbeiten des Films</td></tr>
+  <tr><td>Klick auf „Löschen" bei einem Film</td><td>Film wird nach Bestätigung gelöscht</td></tr>
+</table>
+
+<h2>5. Datenmodell</h2>
+<p>Das folgende Datenmodell zeigt die tatsächlich implementierten Entitäten. Gegenüber dem ursprünglichen UML-Klassendiagramm (Blatt 3) wurden die Entitäten <em>Rating</em>, <em>UserInterest</em> und <em>Request</em> nicht implementiert, da die zugehörigen Use Cases (UC7–UC9) nicht realisiert wurden.</p>
+
+<table>
+  <tr>
+    <th>Entität</th>
+    <th>Felder</th>
+    <th>Beziehung</th>
+  </tr>
+  <tr>
+    <td><strong>Movie</strong></td>
+    <td>id, titel, description, releaseYear, avgRating, type (film/serie)</td>
+    <td>n:1 zu Genre</td>
+  </tr>
+  <tr>
+    <td><strong>Genre</strong></td>
+    <td>id, name</td>
+    <td>1:n zu Movie</td>
+  </tr>
+  <tr>
+    <td><strong>UserProfile</strong></td>
+    <td>id, auth0Sub, email, name, address, city, phone</td>
+    <td>Eigenständig (via Auth0-Sub)</td>
+  </tr>
+  <tr>
+    <td><strong>WatchlistItem</strong></td>
+    <td>id, auth0Sub, movie</td>
+    <td>n:1 zu Movie</td>
+  </tr>
+</table>
+
+<h2>6. Design</h2>
+<p>Das Design orientiert sich am ursprünglichen Moodboard und Style Tile aus Blatt 2. Die Farbpalette und die Typografie wurden in der tatsächlichen Implementierung übernommen.</p>
+
+<table>
+  <tr><th>Element</th><th>Wert</th></tr>
+  <tr><td>Primärfarbe (Lila)</td><td><code>#7C3AED</code> / <code>#A855F7</code></td></tr>
+  <tr><td>Akzentfarbe (Cyan)</td><td><code>#22D3EE</code></td></tr>
+  <tr><td>Hintergrund</td><td><code>#111118</code> (Dunkelblau-Schwarz)</td></tr>
+  <tr><td>Karten-Hintergrund</td><td><code>#1A1A2E</code></td></tr>
+  <tr><td>Schriftart</td><td>Space Grotesk (Google Fonts)</td></tr>
+  <tr><td>UI-Framework</td><td>Bootstrap 5 (Icons: Bootstrap Icons)</td></tr>
+</table>
+
+<p>Die Wireframes und Mockups aus Blatt 2 (Figma) dienten als Vorlage. Das finale Design weicht in Details ab, behält jedoch die festgelegte Farbgebung, das dunkle Theme und die Grundstruktur der Navigation bei.</p>
+
+
+<!-- ════════════════════════════════════
+     ABSCHNITT B: IMPLEMENTIERUNG
+════════════════════════════════════ -->
+<div class="page-break"></div>
+<h1>b) Implementierung</h1>
+
+<h2>1. Architektur</h2>
+<p>Pick and Look ist als <strong>Single-Page Application (SPA)</strong> mit getrenntem Frontend und Backend realisiert:</p>
+
+<table>
+  <tr><th>Schicht</th><th>Technologie</th><th>Beschreibung</th></tr>
+  <tr>
+    <td><strong>Frontend</strong></td>
+    <td>Vue 3, Vite, Pinia, Vue Router</td>
+    <td>SPA mit Composition API; Routing, State Management und HTTP-Calls</td>
+  </tr>
+  <tr>
+    <td><strong>Backend</strong></td>
+    <td>Spring Boot 3.2, JPA/Hibernate</td>
+    <td>REST-API mit JSON; Validierung über Bean Validation</td>
+  </tr>
+  <tr>
+    <td><strong>Datenbank (Prod)</strong></td>
+    <td>PostgreSQL (render.com)</td>
+    <td>Gehostete PostgreSQL-Instanz auf render.com</td>
+  </tr>
+  <tr>
+    <td><strong>Datenbank (Dev)</strong></td>
+    <td>H2 (In-Memory)</td>
+    <td>Automatisch beim Start der lokalen Entwicklungsumgebung</td>
+  </tr>
+  <tr>
+    <td><strong>Authentifizierung</strong></td>
+    <td>Auth0 (OAuth 2.0 / OIDC)</td>
+    <td>Login, Registrierung und Rollenverwaltung via Auth0</td>
+  </tr>
+</table>
+
+<h2>2. Frontend – Struktur</h2>
+
+<table>
+  <tr><th>Datei / Ordner</th><th>Funktion</th></tr>
+  <tr><td><code>src/main.js</code></td><td>App-Einstiegspunkt; Auth0, Pinia und Router werden registriert</td></tr>
+  <tr><td><code>src/router/index.js</code></td><td>Vue Router mit allen Routen; Hash-History für GitHub Pages</td></tr>
+  <tr><td><code>src/services/api.js</code></td><td>Zentrale Axios-Instanz; JWT-Token wird per Interceptor automatisch hinzugefügt</td></tr>
+  <tr><td><code>src/stores/watchlist.js</code></td><td>Pinia-Store für die Merkliste (load, add, remove)</td></tr>
+  <tr><td><code>src/views/MoviesView.vue</code></td><td>Filmübersicht mit Suche und Filterleiste</td></tr>
+  <tr><td><code>src/views/MovieDetailView.vue</code></td><td>Detailansicht eines Films mit Merklisten-Button</td></tr>
+  <tr><td><code>src/views/MovieFormView.vue</code></td><td>Formular zum Anlegen und Bearbeiten von Filmen (Admin)</td></tr>
+  <tr><td><code>src/views/GenresView.vue</code></td><td>Genre-Übersicht mit CRUD (Admin)</td></tr>
+  <tr><td><code>src/views/WatchlistView.vue</code></td><td>Persönliche Merkliste des eingeloggten Benutzers</td></tr>
+  <tr><td><code>src/views/ProfileView.vue</code></td><td>Profil bearbeiten (Name, Adresse, Stadt, Telefon)</td></tr>
+  <tr><td><code>src/views/AdminView.vue</code></td><td>Admin-Dashboard mit Merklisten-Übersicht aller Benutzer</td></tr>
+</table>
+
+<h2>3. Backend – Struktur</h2>
+
+<table>
+  <tr><th>Paket / Klasse</th><th>Funktion</th></tr>
+  <tr><td><code>controller/MovieController</code></td><td>REST-Endpunkte für Filme: GET (alle / einzeln / gefiltert), POST, PUT, DELETE</td></tr>
+  <tr><td><code>controller/GenreController</code></td><td>REST-Endpunkte für Genres: GET, POST, PUT, DELETE</td></tr>
+  <tr><td><code>controller/WatchlistController</code></td><td>Merkliste: GET (nach Sub), POST (hinzufügen), DELETE (entfernen), Admin-Übersicht</td></tr>
+  <tr><td><code>controller/UserProfileController</code></td><td>Profil: GET (abrufen/anlegen), PUT (aktualisieren)</td></tr>
+  <tr><td><code>service/MovieService</code></td><td>Geschäftslogik für Filme inkl. kombinierter Suche/Filter (JPQL-Query)</td></tr>
+  <tr><td><code>service/GenreService</code></td><td>Geschäftslogik für Genres</td></tr>
+  <tr><td><code>service/UserProfileService</code></td><td>Profil abrufen (getOrCreate) und aktualisieren</td></tr>
+  <tr><td><code>SecurityConfig</code></td><td>Spring Security: CORS global konfiguriert, aktuell alle Endpunkte öffentlich</td></tr>
+  <tr><td><code>DataInitializer</code></td><td>Befüllt die Datenbank beim Start mit Beispieldaten (Genres, Filme)</td></tr>
+</table>
+
+<h2>4. API-Endpunkte (Übersicht)</h2>
+
+<table>
+  <tr><th>Methode</th><th>Pfad</th><th>Beschreibung</th></tr>
+  <tr><td>GET</td><td><code>/api/movies</code></td><td>Alle Filme (mit optionalen Filterparametern)</td></tr>
+  <tr><td>GET</td><td><code>/api/movies/{id}</code></td><td>Einzelner Film</td></tr>
+  <tr><td>POST</td><td><code>/api/movies</code></td><td>Film anlegen (Admin)</td></tr>
+  <tr><td>PUT</td><td><code>/api/movies/{id}</code></td><td>Film bearbeiten (Admin)</td></tr>
+  <tr><td>DELETE</td><td><code>/api/movies/{id}</code></td><td>Film löschen (Admin)</td></tr>
+  <tr><td>GET</td><td><code>/api/genres</code></td><td>Alle Genres</td></tr>
+  <tr><td>POST</td><td><code>/api/genres</code></td><td>Genre anlegen (Admin)</td></tr>
+  <tr><td>PUT</td><td><code>/api/genres/{id}</code></td><td>Genre bearbeiten (Admin)</td></tr>
+  <tr><td>DELETE</td><td><code>/api/genres/{id}</code></td><td>Genre löschen (Admin)</td></tr>
+  <tr><td>GET</td><td><code>/api/watchlist?sub=...</code></td><td>Merkliste eines Benutzers</td></tr>
+  <tr><td>POST</td><td><code>/api/watchlist?sub=...</code></td><td>Film zur Merkliste hinzufügen</td></tr>
+  <tr><td>DELETE</td><td><code>/api/watchlist/{id}?sub=...</code></td><td>Film aus Merkliste entfernen</td></tr>
+  <tr><td>GET</td><td><code>/api/watchlist/admin/all</code></td><td>Alle Merklisten-Einträge (Admin)</td></tr>
+  <tr><td>GET</td><td><code>/api/users/me?sub=...</code></td><td>Profil abrufen (oder anlegen)</td></tr>
+  <tr><td>PUT</td><td><code>/api/users/me?sub=...</code></td><td>Profil aktualisieren</td></tr>
+</table>
+
+<h2>5. Routing und Navigation</h2>
+<p>
+  Das Routing wird über <strong>Vue Router</strong> mit Hash-History realisiert
+  (<code>createWebHashHistory()</code>). Hash-History ist für das Deployment auf GitHub Pages
+  notwendig, da der Server keine serverseitigen Weiterleitungen für SPA-Pfade unterstützt.
+  Lokal wird Web-History verwendet.
+</p>
+<p>
+  Die Navbar zeigt rollenabhängige Links: <em>Merkliste</em> und <em>Profil</em> sind nur für
+  eingeloggte Benutzer sichtbar; <em>Admin</em> und <em>Film hinzufügen</em> nur für
+  Benutzer mit Admin-Rolle.
+</p>
+
+<h2>6. State Management</h2>
+<p>
+  Der Zustand der Merkliste wird in einem <strong>Pinia-Store</strong>
+  (<code>stores/watchlist.js</code>) verwaltet. Der Store hält die Liste der gemerkten Filme
+  sowie ein Set mit den IDs für schnelle Existenzprüfung. Er wird beim Login automatisch
+  mit den Daten des Benutzers aus dem Backend befüllt.
+</p>
+
+<h2>7. Authentifizierung</h2>
+<p>
+  Die Authentifizierung ist vollständig an <strong>Auth0</strong> ausgelagert. Der
+  Axios-Interceptor in <code>api.js</code> hängt bei jeder API-Anfrage automatisch den
+  JWT-Bearer-Token aus Auth0 an den <code>Authorization</code>-Header. Die Admin-Rolle
+  wird als Custom Claim (<code>https://pickandlook.com/roles</code>) im JWT-Token
+  übermittelt und im Frontend ausgewertet.
+</p>
+
+<h2>8. Hartcodierte Werte (Erklärung)</h2>
+<div class="info-box orange">
+  <strong>Fallback-URL <code>http://localhost:8080</code> in <code>api.js</code>:</strong><br/>
+  Der Wert <code>'http://localhost:8080'</code> dient als Fallback für die lokale
+  Entwicklungsumgebung, wenn keine <code>.env</code>-Datei gesetzt ist. Im
+  Produktionsbetrieb (GitHub Pages) wird der Wert der Umgebungsvariable
+  <code>VITE_API_URL</code> aus <code>.env.production</code> verwendet, die auf die
+  render.com-Backend-URL zeigt. Dieser Fallback ist bewusst gesetzt und stellt keinen
+  Fehler dar.
+</div>
+
+
+<!-- ════════════════════════════════════
+     ABSCHNITT C: BEREITSTELLUNG
+════════════════════════════════════ -->
+<div class="page-break"></div>
+<h1>c) Bereitstellung</h1>
+
+<h2>1. URLs</h2>
+
+<h3>Frontend (GitHub Pages)</h3>
+<div class="url-box">https://htwg-in-schneider.github.io/frontend-pickandlook/</div>
+<p>Das Frontend wird automatisch via GitHub Actions auf GitHub Pages deployt, sobald ein Push auf den <code>main</code>-Branch erfolgt.</p>
+
+<h3>Backend (render.com)</h3>
+<div class="url-box">https://backend-pickandlook.onrender.com</div>
+<p>Das Backend läuft als Docker-Container auf render.com (Free Tier). Die PostgreSQL-Datenbank ist ebenfalls auf render.com gehostet.</p>
+
+<div class="info-box orange">
+  <strong>Hinweis zum Free Tier:</strong> Der Backend-Service auf render.com schläft nach 15 Minuten Inaktivität ein. Beim ersten Aufruf kann es daher 30–60 Sekunden dauern, bis die Filme geladen werden, während der Service aufwacht. Dies ist eine bekannte Einschränkung des kostenlosen Plans.
+</div>
+
+<h2>2. Source Code (GitHub)</h2>
+
+<table>
+  <tr><th>Repository</th><th>URL</th></tr>
+  <tr>
+    <td>Frontend</td>
+    <td><code>https://github.com/htwg-in-schneider/frontend-pickandlook</code></td>
+  </tr>
+  <tr>
+    <td>Backend</td>
+    <td><code>https://github.com/htwg-in-schneider/backend-pickandlook</code></td>
+  </tr>
+</table>
+
+<h2>3. Zugangsdaten (Testkonten)</h2>
+<p>Für die Evaluierung stehen folgende Testkonten zur Verfügung:</p>
+
+<table class="cred-table">
+  <tr>
+    <th>E-Mail</th>
+    <th>Passwort</th>
+    <th>Rolle</th>
+    <th>Zugang zu</th>
+  </tr>
+  <tr>
+    <td><code>user@pickandlook.com</code></td>
+    <td><code>User1234!</code></td>
+    <td>Normaler Benutzer</td>
+    <td>Merkliste, Profil, Filmübersicht</td>
+  </tr>
+  <tr>
+    <td><code>admin@pickandlook.com</code></td>
+    <td><code>Admin1234!</code></td>
+    <td>Administrator</td>
+    <td>Alle Funktionen + Admin-Bereich, CRUD für Filme &amp; Genres</td>
+  </tr>
+</table>
+
+<h2>4. Deployment-Prozess</h2>
+
+<table>
+  <tr><th>Komponente</th><th>Deployment-Methode</th></tr>
+  <tr>
+    <td>Frontend</td>
+    <td>GitHub Actions Workflow (<code>.github/workflows/deploy.yml</code>): Build mit Vite → Deploy auf gh-pages Branch via <code>peaceiris/actions-gh-pages</code></td>
+  </tr>
+  <tr>
+    <td>Backend</td>
+    <td>Docker-Container auf render.com: Multi-Stage Dockerfile (Maven Build + JRE Runtime) → automatisches Re-Deploy bei Push auf main</td>
+  </tr>
+  <tr>
+    <td>Datenbank</td>
+    <td>PostgreSQL-Instanz auf render.com; Verbindungsdaten werden als Umgebungsvariablen injiziert</td>
+  </tr>
+</table>
+
+<h2>5. Lokale Entwicklungsumgebung</h2>
+<p>Für die lokale Ausführung werden folgende Schritte benötigt:</p>
+
+<table>
+  <tr><th>Schritt</th><th>Befehl</th></tr>
+  <tr>
+    <td>Frontend starten</td>
+    <td><code>cd frontend-pickandlook &amp;&amp; npm install &amp;&amp; npm run dev</code></td>
+  </tr>
+  <tr>
+    <td>Backend starten</td>
+    <td><code>cd backend-pickandlook &amp;&amp; ./mvnw spring-boot:run</code></td>
+  </tr>
+  <tr>
+    <td>Frontend-URL (lokal)</td>
+    <td><code>http://localhost:5173</code></td>
+  </tr>
+  <tr>
+    <td>Backend-URL (lokal)</td>
+    <td><code>http://localhost:8080</code></td>
+  </tr>
+  <tr>
+    <td>Datenbankprofil (lokal)</td>
+    <td>H2 In-Memory (automatisch, kein Setup nötig)</td>
+  </tr>
+</table>
+
+<br/><br/>
+<hr style="border-color: #e0d6ff;"/>
+<p style="text-align:center; color:#888; font-size:9pt; margin-top:12px;">
+  Pick and Look &nbsp;·&nbsp; Chiamaka Chuba &amp; Anna Schätzle &nbsp;·&nbsp; HTWG Konstanz &nbsp;·&nbsp; SS 2026
+</p>
+
+</body>
+</html>

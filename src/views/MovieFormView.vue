@@ -55,7 +55,7 @@
           </div>
 
           <!-- Aufgabe d) 1:n – Genre-Dropdown -->
-          <div class="mb-4">
+          <div class="mb-3">
             <label class="form-label">Genre</label>
             <select v-model="form.genreId" class="form-select">
               <option value="">Kein Genre</option>
@@ -69,6 +69,22 @@
                 Genre anlegen
               </RouterLink>
             </div>
+          </div>
+
+          <!-- UC3 – Thema für Empfehlungen -->
+          <div class="mb-4">
+            <label class="form-label">Thema / Stimmung</label>
+            <select v-model="form.theme" class="form-select">
+              <option value="">Kein Thema</option>
+              <option value="Spannung">Spannung</option>
+              <option value="Action">Action</option>
+              <option value="Romantik">Romantik</option>
+              <option value="Komödie">Komödie</option>
+              <option value="Familie">Familie</option>
+              <option value="Filmabend">Filmabend</option>
+              <option value="Sci-Fi">Sci-Fi</option>
+              <option value="Mystery">Mystery</option>
+            </select>
           </div>
 
           <div class="d-flex gap-3">
@@ -105,7 +121,8 @@ const form = ref({
   releaseYear: new Date().getFullYear(),
   avgRating: 0,
   type: '',
-  genreId: ''
+  genreId: '',
+  theme: ''
 })
 
 onMounted(async () => {
@@ -121,7 +138,8 @@ onMounted(async () => {
       releaseYear: m.releaseYear,
       avgRating:   m.avgRating,
       type:        m.type,
-      genreId:     m.genre?.id || ''
+      genreId:     m.genre?.id || '',
+      theme:       m.theme || ''
     }
   }
 })

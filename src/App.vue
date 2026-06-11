@@ -28,6 +28,11 @@
             <li class="nav-item">
               <RouterLink class="nav-link" to="/movies">Filme &amp; Serien</RouterLink>
             </li>
+            <li class="nav-item">
+              <RouterLink class="nav-link" to="/empfehlungen">
+                <i class="bi bi-stars me-1"></i>Empfehlungen
+              </RouterLink>
+            </li>
 
             <!-- Admin-Bereich nur für eingeloggte Admins -->
             <li v-if="isAuthenticated && isAdmin" class="nav-item">

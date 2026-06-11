@@ -12,9 +12,11 @@ import WatchlistView from '../views/WatchlistView.vue'
 import AdminView from '../views/AdminView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
 import KontaktView from '../views/KontaktView.vue'
+import EmpfehlungenView from '../views/EmpfehlungenView.vue'
 
 const routes = [
   { path: '/',              component: HomeView },
+  { path: '/empfehlungen',  component: EmpfehlungenView },
   { path: '/profile',       component: ProfileView },
   { path: '/impressum',     component: ImpressumView },
   { path: '/datenschutz',   component: DatenschutzView },

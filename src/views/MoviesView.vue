@@ -41,6 +41,22 @@
           </select>
         </div>
 
+        <!-- UC3: Filter: Thema -->
+        <div class="col-md-2">
+          <label class="form-label">Thema</label>
+          <select v-model="filters.theme" @change="search" class="form-select">
+            <option value="">Alle Themen</option>
+            <option value="Spannung">😰 Spannung</option>
+            <option value="Action">💥 Action</option>
+            <option value="Romantik">💕 Romantik</option>
+            <option value="Komödie">😂 Komödie</option>
+            <option value="Familie">👨‍👩‍👧 Familie</option>
+            <option value="Filmabend">🍿 Filmabend</option>
+            <option value="Sci-Fi">🚀 Sci-Fi</option>
+            <option value="Mystery">🔍 Mystery</option>
+          </select>
+        </div>
+
         <!-- e) Filter: Mindest-Bewertung -->
         <div class="col-md-2">
           <label class="form-label">Min. Bewertung</label>
@@ -152,19 +168,24 @@ const loading = ref(false)
 const error   = ref(null)
 const toDelete = ref(null)
 
-const filters = ref({ titel: '', type: '', genreId: '', minRating: '' })
+const filters = ref({ titel: '', type: '', genreId: '', minRating: '', theme: '' })
 
 async function search() {
   loading.value = true
   error.value   = null
   try {
     const params = {}
-    if (filters.value.titel)     params.titel     = filters.value.titel
-    if (filters.value.type)      params.type      = filters.value.type
-    if (filters.value.genreId)   params.genreId   = filters.value.genreId
-    if (filters.value.minRating !== '') params.minRating = filters.value.minRating
+    if (filters.value.titel)              params.titel     = filters.value.titel
+    if (filters.value.type)               params.type      = filters.value.type
+    if (filters.value.genreId)            params.genreId   = filters.value.genreId
+    if (filters.value.minRating !== '')   params.minRating = filters.value.minRating
     const res = await getMovies(params)
-    movies.value = res.data
+    let data = res.data
+    // Thema client-seitig filtern
+    if (filters.value.theme) {
+      data = data.filter(m => m.theme === filters.value.theme)
+    }
+    movies.value = data
   } catch (e) {
     error.value = 'Fehler beim Laden: ' + (e.response?.data?.message || e.message)
   } finally {
@@ -173,7 +194,7 @@ async function search() {
 }
 
 function resetFilters() {
-  filters.value = { titel: '', type: '', genreId: '', minRating: '' }
+  filters.value = { titel: '', type: '', genreId: '', minRating: '', theme: '' }
   search()
 }
 

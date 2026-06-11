@@ -231,13 +231,21 @@ async function loadResults() {
   loading.value = true
   loadError.value = null
   try {
+    // Server-seitige Filter: Typ und Mindestbewertung
     const params = {}
-    if (selectedMood.value?.value !== '__all__') params.theme = selectedMood.value.value
     if (filters.value.type) params.type = filters.value.type
     if (filters.value.minRating > 0) params.minRating = filters.value.minRating
 
+    // Theme wird client-seitig gefiltert (funktioniert mit alt + neu Backend)
     const res = await getMovies(params)
-    results.value = res.data
+    let movies = res.data
+
+    if (selectedMood.value?.value !== '__all__' && selectedMood.value?.value) {
+      const theme = selectedMood.value.value
+      movies = movies.filter(m => m.theme === theme)
+    }
+
+    results.value = movies
     step.value = 3
   } catch (e) {
     loadError.value = 'Das Backend ist gerade nicht erreichbar. Bitte warte kurz und versuche es erneut.'

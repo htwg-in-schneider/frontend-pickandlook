@@ -98,6 +98,10 @@
               Empfehlungen anzeigen
             </button>
           </div>
+
+          <div v-if="loadError" class="alert alert-danger mt-3 mb-0">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ loadError }}
+          </div>
         </div>
       </div>
 
@@ -186,6 +190,7 @@ const watchlistStore = useWatchlistStore()
 
 const step = ref(1)
 const loading = ref(false)
+const loadError = ref(null)
 const selectedMood = ref(null)
 const results = ref([])
 
@@ -224,6 +229,7 @@ function selectMood(mood) {
 
 async function loadResults() {
   loading.value = true
+  loadError.value = null
   try {
     const params = {}
     if (selectedMood.value?.value !== '__all__') params.theme = selectedMood.value.value
@@ -233,6 +239,8 @@ async function loadResults() {
     const res = await getMovies(params)
     results.value = res.data
     step.value = 3
+  } catch (e) {
+    loadError.value = 'Das Backend ist gerade nicht erreichbar. Bitte warte kurz und versuche es erneut.'
   } finally {
     loading.value = false
   }

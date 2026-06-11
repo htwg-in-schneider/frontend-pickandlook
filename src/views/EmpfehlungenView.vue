@@ -251,7 +251,9 @@ async function loadResults() {
     results.value = movies
     step.value = 3
   } catch (e) {
-    loadError.value = 'Das Backend ist gerade nicht erreichbar. Bitte warte kurz und versuche es erneut.'
+    loadError.value = e.response
+      ? `Server-Fehler ${e.response.status}`
+      : `JS-Fehler: ${e.message}`
   } finally {
     loading.value = false
   }

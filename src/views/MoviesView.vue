@@ -11,7 +11,7 @@
     <div class="card p-3 mb-4">
       <div class="row g-3">
         <!-- b) Suche nach Titel -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="form-label">Titel suchen</label>
           <div class="input-group">
             <span class="input-group-text bg-dark border-secondary text-white">
@@ -33,7 +33,7 @@
         </div>
 
         <!-- e) Filter: Genre (1:n) -->
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label class="form-label">Genre</label>
           <select v-model="filters.genreId" @change="search" class="form-select">
             <option value="">Alle Genres</option>
@@ -46,14 +46,14 @@
           <label class="form-label">Thema</label>
           <select v-model="filters.theme" @change="search" class="form-select">
             <option value="">Alle Themen</option>
-            <option value="Spannung">😰 Spannung</option>
-            <option value="Action">💥 Action</option>
-            <option value="Romantik">💕 Romantik</option>
-            <option value="Komödie">😂 Komödie</option>
-            <option value="Familie">👨‍👩‍👧 Familie</option>
-            <option value="Filmabend">🍿 Filmabend</option>
-            <option value="Sci-Fi">🚀 Sci-Fi</option>
-            <option value="Mystery">🔍 Mystery</option>
+            <option value="Spannung">Spannung</option>
+            <option value="Action">Action</option>
+            <option value="Romantik">Romantik</option>
+            <option value="Komödie">Komödie</option>
+            <option value="Familie">Familie</option>
+            <option value="Filmabend">Filmabend</option>
+            <option value="Sci-Fi">Sci-Fi</option>
+            <option value="Mystery">Mystery</option>
           </select>
         </div>
 

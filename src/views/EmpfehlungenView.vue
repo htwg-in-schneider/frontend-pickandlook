@@ -231,18 +231,21 @@ async function loadResults() {
   loading.value = true
   loadError.value = null
   try {
-    // Server-seitige Filter: Typ und Mindestbewertung
-    const params = {}
-    if (filters.value.type) params.type = filters.value.type
-    if (filters.value.minRating > 0) params.minRating = filters.value.minRating
-
-    // Theme wird client-seitig gefiltert (funktioniert mit alt + neu Backend)
-    const res = await getMovies(params)
+    // Alle Filme holen, dann client-seitig filtern
+    const res = await getMovies()
     let movies = res.data
 
+    // Thema filtern
     if (selectedMood.value?.value !== '__all__' && selectedMood.value?.value) {
-      const theme = selectedMood.value.value
-      movies = movies.filter(m => m.theme === theme)
+      movies = movies.filter(m => m.theme === selectedMood.value.value)
+    }
+    // Typ filtern
+    if (filters.value.type) {
+      movies = movies.filter(m => m.type === filters.value.type)
+    }
+    // Mindestbewertung filtern
+    if (filters.value.minRating > 0) {
+      movies = movies.filter(m => m.avgRating >= filters.value.minRating)
     }
 
     results.value = movies

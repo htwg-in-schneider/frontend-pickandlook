@@ -65,6 +65,82 @@
         </div>
       </div>
 
+      <!-- Benutzerverwaltung -->
+      <div class="mt-5">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <h4 class="mb-0"><i class="bi bi-people me-2 text-purple"></i>Benutzerverwaltung</h4>
+          <button @click="loadUsers" class="btn btn-sm btn-outline-light">
+            <i class="bi bi-arrow-clockwise"></i> Aktualisieren
+          </button>
+        </div>
+        <p class="text-muted small mb-3">Alle registrierten Benutzer anzeigen und bearbeiten</p>
+
+        <div v-if="loadingUsers" class="text-center py-3">
+          <div class="spinner-border text-purple"></div>
+        </div>
+
+        <div v-else-if="users.length === 0" class="text-muted">Noch keine Benutzer vorhanden.</div>
+
+        <div v-else class="card p-0" style="overflow:hidden;">
+          <table class="table table-dark table-hover mb-0">
+            <thead>
+              <tr>
+                <th>E-Mail</th>
+                <th>Name</th>
+                <th>Stadt</th>
+                <th>Telefon</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="u in users" :key="u.auth0Sub">
+                <td class="small">{{ u.email || '–' }}</td>
+                <td>{{ u.name || '–' }}</td>
+                <td>{{ u.city || '–' }}</td>
+                <td>{{ u.phone || '–' }}</td>
+                <td>
+                  <button @click="openEdit(u)" class="btn btn-sm btn-outline-light">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Edit-Modal -->
+      <div v-if="editUser" class="modal-backdrop-custom" @click.self="editUser = null">
+        <div class="modal-box">
+          <h5 class="mb-3"><i class="bi bi-person me-2"></i>Benutzer bearbeiten</h5>
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input v-model="editUser.name" type="text" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">E-Mail</label>
+            <input v-model="editUser.email" type="email" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Adresse</label>
+            <input v-model="editUser.address" type="text" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Stadt</label>
+            <input v-model="editUser.city" type="text" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Telefon</label>
+            <input v-model="editUser.phone" type="text" class="form-control" />
+          </div>
+          <div v-if="editError" class="alert alert-danger py-2 small">{{ editError }}</div>
+          <div class="d-flex gap-2 justify-content-end">
+            <button @click="editUser = null" class="btn btn-outline-light">Abbrechen</button>
+            <button @click="saveUser" class="btn btn-primary">Speichern</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Merklisten-Übersicht -->
       <div class="mt-5">
         <div class="d-flex align-items-center gap-3 mb-3">
@@ -114,7 +190,7 @@
 <script setup>
 import { computed, watch, ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { getWatchlistAdmin } from '../services/api.js'
+import { getWatchlistAdmin, getAllUsers, updateUserByAdmin } from '../services/api.js'
 
 const { isAuthenticated, user } = useAuth0()
 
@@ -123,6 +199,43 @@ const isAdmin = computed(() => {
   return roles.includes('admin')
 })
 
+// ── Benutzerverwaltung ───────────────────────────────
+const users = ref([])
+const loadingUsers = ref(true)
+const editUser = ref(null)
+const editError = ref('')
+
+async function loadUsers() {
+  loadingUsers.value = true
+  try {
+    const res = await getAllUsers()
+    users.value = res.data
+  } catch (e) {
+    console.error('Fehler beim Laden der Benutzer', e)
+  } finally {
+    loadingUsers.value = false
+  }
+}
+
+function openEdit(u) {
+  editUser.value = { ...u }
+  editError.value = ''
+}
+
+async function saveUser() {
+  editError.value = ''
+  try {
+    const res = await updateUserByAdmin(editUser.value.auth0Sub, editUser.value)
+    const idx = users.value.findIndex(u => u.auth0Sub === editUser.value.auth0Sub)
+    if (idx !== -1) users.value[idx] = res.data
+    editUser.value = null
+  } catch (e) {
+    editError.value = 'Speichern fehlgeschlagen. Bitte erneut versuchen.'
+    console.error(e)
+  }
+}
+
+// ── Merklisten ───────────────────────────────────────
 const watchlistEntries = ref([])
 const loadingWatchlist = ref(true)
 
@@ -139,6 +252,29 @@ async function loadWatchlistEntries() {
 
 // Laden sobald isAuthenticated true wird
 watch(isAuthenticated, (val) => {
-  if (val) loadWatchlistEntries()
+  if (val) {
+    loadUsers()
+    loadWatchlistEntries()
+  }
 }, { immediate: true })
 </script>
+
+<style scoped>
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+.modal-box {
+  background: #1e1e2e;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 480px;
+}
+</style>

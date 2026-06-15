@@ -105,3 +105,11 @@ export function getUserProfile(sub, email = '') {
 export function updateUserProfile(sub, data) {
   return api.put('/api/users/me', data, { params: { sub } })
 }
+
+export function getAllUsers() {
+  return api.get('/api/users/all')
+}
+
+export function updateUserByAdmin(sub, data) {
+  return api.put(`/api/users/${sub}/edit`, data)
+}

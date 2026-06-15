@@ -88,6 +88,15 @@ export function getWatchlistAdmin() {
   return api.get('/api/watchlist/admin/all')
 }
 
+// ── Ratings ──────────────────────────────────────────
+export function getMyRating(movieId, sub) {
+  return api.get(`/api/ratings/${movieId}`, { params: { sub } })
+}
+
+export function submitRating(sub, movieId, stars) {
+  return api.post('/api/ratings', { movieId, stars }, { params: { sub } })
+}
+
 // ── User Profile ─────────────────────────────────────
 export function getUserProfile(sub, email = '') {
   return api.get('/api/users/me', { params: { sub, email } })

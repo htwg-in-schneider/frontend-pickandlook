@@ -57,7 +57,7 @@
           <p v-else class="text-secondary fst-italic">Keine Beschreibung vorhanden.</p>
         </div>
 
-        <!-- UC7: Sternebewertung (nur für eingeloggte User) -->
+        <!-- UC7: Sternebewertung (1-5 Sterne, nur für eingeloggte User) -->
         <div v-if="isAuthenticated" class="mt-4">
           <hr style="border-color: rgba(255,255,255,0.1)">
           <h5 class="mb-3">Deine Bewertung</h5>

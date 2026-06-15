@@ -170,7 +170,7 @@
             </thead>
             <tbody>
               <tr v-for="(entry, i) in watchlistEntries" :key="i">
-                <td class="text-muted small">{{ entry.user }}</td>
+                <td class="text-muted small">{{ resolveUser(entry.user) }}</td>
                 <td>{{ entry.movieTitel }}</td>
                 <td>
                   <span class="badge" :class="entry.movieType === 'serie' ? 'badge-cyan' : 'badge-purple'">
@@ -235,6 +235,11 @@ async function saveUser() {
   }
 }
 
+function resolveUser(sub) {
+  const found = users.value.find(u => u.auth0Sub === sub)
+  return found ? (found.name || found.email || sub) : sub
+}
+
 // ── Merklisten ───────────────────────────────────────
 const watchlistEntries = ref([])
 const loadingWatchlist = ref(true)
@@ -251,9 +256,9 @@ async function loadWatchlistEntries() {
 }
 
 // Laden sobald isAuthenticated true wird
-watch(isAuthenticated, (val) => {
+watch(isAuthenticated, async (val) => {
   if (val) {
-    loadUsers()
+    await loadUsers()
     loadWatchlistEntries()
   }
 }, { immediate: true })

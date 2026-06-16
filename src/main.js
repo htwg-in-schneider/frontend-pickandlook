@@ -25,7 +25,10 @@ app.use(router)
 app.mount('#app')
 
 // JWT-Token-Getter für den Axios-Interceptor registrieren
-// Damit sendet api.js bei jeder Anfrage automatisch den Bearer-Token
-const { getAccessTokenSilently } = auth0
-setTokenGetter(() => getAccessTokenSilently())
+// Nur Token senden wenn User eingeloggt ist, sonst kein Authorization-Header
+const { getAccessTokenSilently, isAuthenticated } = auth0
+setTokenGetter(() => {
+  if (!isAuthenticated.value) return Promise.resolve(null)
+  return getAccessTokenSilently()
+})
 

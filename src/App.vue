@@ -39,8 +39,8 @@
               <RouterLink class="nav-link" to="/admin">Admin</RouterLink>
             </li>
 
-            <!-- Anfragen für Publisher und Admins -->
-            <li v-if="isAuthenticated && canManageContent" class="nav-item">
+            <!-- Anfragen für alle eingeloggten User -->
+            <li v-if="isAuthenticated" class="nav-item">
               <RouterLink class="nav-link" to="/anfragen">
                 <i class="bi bi-inbox me-1"></i>Anfragen
               </RouterLink>

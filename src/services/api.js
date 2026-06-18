@@ -113,3 +113,24 @@ export function getAllUsers() {
 export function updateUserByAdmin(sub, data) {
   return api.put(`/api/users/${sub}/edit`, data)
 }
+
+// ── Anfragen ─────────────────────────────────────────
+export function getAllAnfragen() {
+  return api.get('/api/anfragen')
+}
+
+export function getMyAnfragen(sub) {
+  return api.get('/api/anfragen/mine', { params: { sub } })
+}
+
+export function createAnfrage(sub, data) {
+  return api.post('/api/anfragen', data, { params: { sub } })
+}
+
+export function updateAnfrage(id, data) {
+  return api.put(`/api/anfragen/${id}`, data)
+}
+
+export function deleteAnfrage(id) {
+  return api.delete(`/api/anfragen/${id}`)
+}

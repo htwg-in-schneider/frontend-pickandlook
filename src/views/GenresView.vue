@@ -2,7 +2,7 @@
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="mb-0">🎭 Genres</h2>
-      <RouterLink v-if="isAdmin" to="/genres/new" class="btn btn-primary">
+      <RouterLink v-if="canManageContent" to="/genres/new" class="btn btn-primary">
         <i class="bi bi-plus-lg me-1"></i>Neu
       </RouterLink>
     </div>
@@ -33,7 +33,7 @@
         <div class="card p-3">
           <h5 class="mb-1">{{ genre.name }}</h5>
           <p v-if="genre.description" class="text-secondary small mb-3">{{ genre.description }}</p>
-          <div v-if="isAdmin" class="d-flex gap-2 mt-auto">
+          <div v-if="canManageContent" class="d-flex gap-2 mt-auto">
             <RouterLink :to="`/genres/${genre.id}/edit`" class="btn btn-sm btn-outline-light flex-fill">
               <i class="bi bi-pencil me-1"></i>Bearbeiten
             </RouterLink>
@@ -69,6 +69,11 @@ const isAdmin = computed(() => {
   const roles = user.value?.['https://pickandlook.com/roles'] || []
   return roles.includes('admin')
 })
+const isPublisher = computed(() => {
+  const roles = user.value?.['https://pickandlook.com/roles'] || []
+  return roles.includes('publisher')
+})
+const canManageContent = computed(() => isAdmin.value || isPublisher.value)
 
 const genres     = ref([])
 const loading    = ref(true)

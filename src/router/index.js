@@ -13,6 +13,7 @@ import AdminView from '../views/AdminView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
 import KontaktView from '../views/KontaktView.vue'
 import EmpfehlungenView from '../views/EmpfehlungenView.vue'
+import AnfragenView from '../views/AnfragenView.vue'
 
 const routes = [
   { path: '/',              component: HomeView },
@@ -23,6 +24,7 @@ const routes = [
   { path: '/kontakt',       component: KontaktView },
   { path: '/watchlist',     component: WatchlistView },
   { path: '/admin',         component: AdminView },
+  { path: '/anfragen',      component: AnfragenView },
   { path: '/movies',    component: MoviesView },
   { path: '/movies/new',      component: MovieFormView },
   { path: '/movies/:id/edit', component: MovieFormView },

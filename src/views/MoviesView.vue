@@ -2,7 +2,7 @@
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <h2 class="mb-0">🎬 Filme &amp; Serien</h2>
-      <RouterLink v-if="isAdmin" to="/movies/new" class="btn btn-primary">
+      <RouterLink v-if="canManageContent" to="/movies/new" class="btn btn-primary">
         <i class="bi bi-plus-lg me-1"></i>Neu
       </RouterLink>
     </div>
@@ -121,7 +121,7 @@
               <i :class="watchlistStore.isInWatchlist(movie.id) ? 'bi bi-bookmark-fill' : 'bi bi-bookmark'"></i>
               {{ watchlistStore.isInWatchlist(movie.id) ? 'Gemerkt' : 'Merken' }}
             </button>
-            <template v-if="isAdmin">
+            <template v-if="canManageContent">
               <RouterLink :to="`/movies/${movie.id}/edit`" class="btn btn-sm btn-outline-light flex-fill">
                 <i class="bi bi-pencil me-1"></i>Bearbeiten
               </RouterLink>
@@ -161,6 +161,13 @@ const isAdmin = computed(() => {
   const roles = user.value?.['https://pickandlook.com/roles'] || []
   return roles.includes('admin')
 })
+
+const isPublisher = computed(() => {
+  const roles = user.value?.['https://pickandlook.com/roles'] || []
+  return roles.includes('publisher')
+})
+
+const canManageContent = computed(() => isAdmin.value || isPublisher.value)
 
 const movies  = ref([])
 const genres  = ref([])

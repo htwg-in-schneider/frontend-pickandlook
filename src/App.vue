@@ -39,6 +39,13 @@
               <RouterLink class="nav-link" to="/admin">Admin</RouterLink>
             </li>
 
+            <!-- Anfragen für Publisher und Admins -->
+            <li v-if="isAuthenticated && canManageContent" class="nav-item">
+              <RouterLink class="nav-link" to="/anfragen">
+                <i class="bi bi-inbox me-1"></i>Anfragen
+              </RouterLink>
+            </li>
+
             <!-- Merkliste nur für eingeloggte User -->
             <li v-if="isAuthenticated" class="nav-item">
               <RouterLink class="nav-link" to="/watchlist">
@@ -64,7 +71,7 @@
               </button>
             </li>
 
-            <li v-if="isAuthenticated && isAdmin" class="nav-item ms-2">
+            <li v-if="isAuthenticated && canManageContent" class="nav-item ms-2">
               <RouterLink class="btn btn-primary" to="/movies/new">
                 <i class="bi bi-plus-lg me-1"></i>Film hinzufügen
               </RouterLink>
@@ -112,11 +119,17 @@ import { useAuth0 } from '@auth0/auth0-vue'
 
 const { isAuthenticated, user, loginWithRedirect, logout } = useAuth0()
 
-// Prüft ob der eingeloggte User die Admin-Rolle hat (gesetzt via Auth0 Action)
 const isAdmin = computed(() => {
   const roles = user.value?.['https://pickandlook.com/roles'] || []
   return roles.includes('admin')
 })
+
+const isPublisher = computed(() => {
+  const roles = user.value?.['https://pickandlook.com/roles'] || []
+  return roles.includes('publisher')
+})
+
+const canManageContent = computed(() => isAdmin.value || isPublisher.value)
 
 function handleLogout() {
   // returnTo muss den vollen Pfad enthalten, damit Auth0 auf GitHub Pages korrekt zurückleitet

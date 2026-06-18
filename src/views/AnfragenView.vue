@@ -2,6 +2,19 @@
   <div>
     <h2 class="mb-4"><i class="bi bi-inbox me-2 text-purple"></i>Anfragen</h2>
 
+    <!-- Publisher/Admin: selbst auch eine Anfrage stellen -->
+    <div v-if="canManageContent && isAuthenticated" class="card p-4 mb-4">
+      <h5 class="mb-3"><i class="bi bi-plus-circle me-2 text-cyan"></i>Eigene Anfrage stellen</h5>
+      <div class="mb-3">
+        <textarea v-model="neueAnfrage" class="form-control" rows="2"
+          placeholder="z.B. Bitte fügt den Film 'Dune' hinzu..."></textarea>
+      </div>
+      <div v-if="sendSuccess" class="alert alert-success py-2 small">Anfrage gesendet!</div>
+      <button @click="send" :disabled="!neueAnfrage.trim()" class="btn btn-primary btn-sm">
+        <i class="bi bi-send me-1"></i>Absenden
+      </button>
+    </div>
+
     <!-- Publisher/Admin: alle Anfragen verwalten -->
     <div v-if="canManageContent">
       <div class="d-flex align-items-center gap-3 mb-3">
@@ -170,7 +183,8 @@ async function send() {
     })
     neueAnfrage.value = ''
     sendSuccess.value = true
-    loadMine()
+    if (canManageContent.value) loadAll()
+    else loadMine()
   } catch {
     sendError.value = 'Fehler beim Senden. Bitte erneut versuchen.'
   }

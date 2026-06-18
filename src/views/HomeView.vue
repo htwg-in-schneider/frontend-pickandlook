@@ -145,8 +145,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
+import { getMovies } from '../services/api.js'
 
 const { isAuthenticated, loginWithRedirect } = useAuth0()
 
@@ -166,11 +167,31 @@ function sendContact() {
   sent.value = true
 }
 
-const topMovies = [
-  { titel: 'Inception',       genre: 'Sci-Fi',  year: 2010, match: 98, color: 'rgba(124,58,237,0.6)', barColor: '#7C3AED' },
-  { titel: 'Interstellar',    genre: 'Drama',   year: 2014, match: 95, color: 'rgba(34,211,238,0.5)', barColor: '#22D3EE' },
-  { titel: 'The Dark Knight', genre: 'Action',  year: 2008, match: 92, color: 'rgba(234,179,8,0.5)',  barColor: '#EAB308' },
+const colors = [
+  { color: 'rgba(124,58,237,0.6)', barColor: '#7C3AED' },
+  { color: 'rgba(34,211,238,0.5)', barColor: '#22D3EE' },
+  { color: 'rgba(234,179,8,0.5)',  barColor: '#EAB308' },
 ]
+
+const topMovies = ref([])
+
+onMounted(async () => {
+  try {
+    const res = await getMovies()
+    topMovies.value = res.data
+      .sort((a, b) => b.avgRating - a.avgRating)
+      .slice(0, 3)
+      .map((m, i) => ({
+        titel: m.titel,
+        genre: m.genre?.name || m.type,
+        year: m.releaseYear,
+        match: Math.round((m.avgRating / 10) * 100),
+        ...colors[i]
+      }))
+  } catch (e) {
+    // Fallback auf leere Liste
+  }
+})
 </script>
 
 <style scoped>

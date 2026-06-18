@@ -28,13 +28,15 @@
         <div class="col-lg-6">
           <div class="recommend-card p-4">
             <p class="text-purple fw-semibold mb-3">Empfohlen für dich</p>
-            <div v-for="movie in topMovies" :key="movie.titel" class="recommend-item d-flex align-items-center gap-3 mb-3">
+            <RouterLink v-for="movie in topMovies" :key="movie.id"
+              :to="`/movies/${movie.id}`"
+              class="recommend-item d-flex align-items-center gap-3 mb-3 text-decoration-none">
               <div class="recommend-thumb d-flex align-items-center justify-content-center" :style="{ background: movie.color }">
                 <i class="bi bi-play-fill text-white"></i>
               </div>
               <div class="flex-grow-1">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                  <div class="fw-semibold" style="font-size:0.95rem;">{{ movie.titel }}</div>
+                  <div class="fw-semibold text-white" style="font-size:0.95rem;">{{ movie.titel }}</div>
                   <span class="small" style="color:#C4B5FD;">{{ movie.match }}%</span>
                 </div>
                 <div class="small mb-1" style="color:#888;">{{ movie.genre }} · {{ movie.year }}</div>
@@ -42,7 +44,7 @@
                   <div class="progress-bar-fill" :style="{ width: movie.match + '%', background: movie.barColor }"></div>
                 </div>
               </div>
-            </div>
+            </RouterLink>
           </div>
         </div>
       </div>
@@ -182,6 +184,7 @@ onMounted(async () => {
       .sort((a, b) => b.avgRating - a.avgRating)
       .slice(0, 3)
       .map((m, i) => ({
+        id: m.id,
         titel: m.titel,
         genre: m.genre?.name || m.type,
         year: m.releaseYear,

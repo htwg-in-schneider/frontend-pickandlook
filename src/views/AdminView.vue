@@ -7,6 +7,39 @@
     <div v-else>
       <h2 class="mb-4"><i class="bi bi-shield-check me-2 text-purple"></i>Admin-Bereich</h2>
 
+      <!-- Statistiken -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card p-3 text-center">
+            <div class="fs-2 fw-bold text-purple">{{ stats.totalMovies ?? '–' }}</div>
+            <div class="small text-muted mt-1"><i class="bi bi-film me-1"></i>Filme & Serien</div>
+            <div class="small text-muted">{{ stats.totalFilme ?? 0 }} Filme · {{ stats.totalSerien ?? 0 }} Serien</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card p-3 text-center">
+            <div class="fs-2 fw-bold text-cyan">{{ stats.totalUsers ?? '–' }}</div>
+            <div class="small text-muted mt-1"><i class="bi bi-people me-1"></i>Registrierte User</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card p-3 text-center">
+            <div class="fs-2 fw-bold" :class="stats.offeneAnfragen > 0 ? 'text-warning' : 'text-cyan'">
+              {{ stats.offeneAnfragen ?? '–' }}
+            </div>
+            <div class="small text-muted mt-1"><i class="bi bi-inbox me-1"></i>Offene Anfragen</div>
+            <div class="small text-muted">{{ stats.totalAnfragen ?? 0 }} gesamt</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card p-3 text-center">
+            <div class="fs-2 fw-bold text-purple">{{ stats.totalRatings ?? '–' }}</div>
+            <div class="small text-muted mt-1"><i class="bi bi-star me-1"></i>Bewertungen</div>
+            <div class="small text-muted">{{ stats.totalWatchlist ?? 0 }} Merklisten-Einträge</div>
+          </div>
+        </div>
+      </div>
+
       <div class="row g-4">
         <!-- Genre-Verwaltung -->
         <div class="col-md-6">
@@ -190,7 +223,7 @@
 <script setup>
 import { computed, watch, ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { getWatchlistAdmin, getAllUsers, updateUserByAdmin } from '../services/api.js'
+import { getWatchlistAdmin, getAllUsers, updateUserByAdmin, getStats } from '../services/api.js'
 
 const { isAuthenticated, user } = useAuth0()
 
@@ -198,6 +231,17 @@ const isAdmin = computed(() => {
   const roles = user.value?.['https://pickandlook.com/roles'] || []
   return roles.includes('admin')
 })
+
+// ── Statistiken ─────────────────────────────────────
+const stats = ref({})
+async function loadStats() {
+  try {
+    const res = await getStats()
+    stats.value = res.data
+  } catch (e) {
+    console.error('Stats konnten nicht geladen werden', e)
+  }
+}
 
 // ── Benutzerverwaltung ───────────────────────────────
 const users = ref([])
@@ -237,7 +281,7 @@ async function saveUser() {
 
 function resolveUser(sub) {
   const found = users.value.find(u => u.auth0Sub === sub)
-  return found ? (found.name || found.email || sub) : sub
+  return found ? (found.email || found.name || sub) : sub
 }
 
 // ── Merklisten ───────────────────────────────────────
@@ -258,6 +302,7 @@ async function loadWatchlistEntries() {
 // Laden sobald isAuthenticated true wird
 watch(isAuthenticated, async (val) => {
   if (val) {
+    loadStats()
     await loadUsers()
     loadWatchlistEntries()
   }

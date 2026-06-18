@@ -114,6 +114,11 @@ export function updateUserByAdmin(sub, data) {
   return api.put(`/api/users/${sub}/edit`, data)
 }
 
+// ── Stats ────────────────────────────────────────────
+export function getStats() {
+  return api.get('/api/stats')
+}
+
 // ── Anfragen ─────────────────────────────────────────
 export function getAllAnfragen() {
   return api.get('/api/anfragen')

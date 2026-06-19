@@ -93,9 +93,21 @@
               </div>
               <h6 class="fw-bold mb-1">{{ item.movie.titel }}</h6>
               <div class="text-muted small mb-2">{{ item.movie.releaseYear }}</div>
-              <div class="mt-auto d-flex justify-content-between align-items-center">
-                <span class="text-cyan fw-semibold">⭐ {{ item.movie.avgRating }}</span>
-                <RouterLink :to="`/movies/${item.movie.id}`" class="btn btn-sm btn-outline-light">Details</RouterLink>
+              <div class="mt-auto">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="text-muted small">Community</span>
+                  <span class="text-cyan fw-semibold">⭐ {{ item.movie.avgRating }}/10</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-muted small">Deine Bewertung</span>
+                  <span v-if="myRatings[item.movie.id]" class="text-warning fw-semibold">
+                    ⭐ {{ myRatings[item.movie.id] }}/10
+                  </span>
+                  <button v-else @click="openRatingModal(item.movie)" class="btn btn-sm btn-outline-warning py-0 px-2" style="font-size:0.75rem;">
+                    Jetzt bewerten
+                  </button>
+                </div>
+                <RouterLink :to="`/movies/${item.movie.id}`" class="btn btn-sm btn-outline-light w-100">Details</RouterLink>
               </div>
             </div>
           </div>
@@ -145,12 +157,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { getWatchlist, removeFromWatchlist, updateWatchlistStatus, submitRating } from '../services/api.js'
+import { getWatchlist, removeFromWatchlist, updateWatchlistStatus, submitRating, getMyRating } from '../services/api.js'
 
 const { isAuthenticated, user } = useAuth0()
 const activeTab = ref('pick')
 const loading = ref(true)
 const items = ref([])
+const myRatings = ref({}) // movieId -> stars
 
 const picks = computed(() => items.value.filter(i => i.status === 'pick'))
 const looks = computed(() => items.value.filter(i => i.status === 'look'))
@@ -168,6 +181,14 @@ async function load() {
   try {
     const res = await getWatchlist(user.value.sub)
     items.value = res.data
+    // Eigene Bewertungen für alle Looks laden
+    const lookItems = res.data.filter(i => i.status === 'look')
+    await Promise.all(lookItems.map(async i => {
+      try {
+        const r = await getMyRating(i.movie.id, user.value.sub)
+        if (r.status === 200) myRatings.value[i.movie.id] = r.data.stars
+      } catch { /* keine Bewertung */ }
+    }))
   } finally {
     loading.value = false
   }
@@ -204,6 +225,7 @@ async function submitModalRating() {
   ratingError.value = null
   try {
     await submitRating(user.value.sub, ratingMovie.value.id, modalRating.value)
+    myRatings.value[ratingMovie.value.id] = modalRating.value
     ratingSuccess.value = true
     setTimeout(() => {
       ratingSuccess.value = false

@@ -223,6 +223,9 @@
             <i class="bi bi-flag-fill text-danger me-2"></i>Gemeldete Kommentare
             <span v-if="reportedComments.length > 0" class="badge bg-danger ms-2">{{ reportedComments.length }}</span>
           </h4>
+          <button @click="loadReportedComments" class="btn btn-sm btn-outline-light">
+            <i class="bi bi-arrow-clockwise me-1"></i>Aktualisieren
+          </button>
         </div>
         <div v-if="reportedComments.length === 0" class="text-muted small">
           Keine gemeldeten Kommentare.

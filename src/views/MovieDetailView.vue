@@ -80,13 +80,13 @@
           </div>
 
           <!-- Ist ein Pick -->
-          <div v-else-if="watchlistStatus === 'pick'" class="d-flex align-items-center gap-3">
-            <div class="d-flex align-items-center gap-2">
+          <div v-else-if="watchlistStatus === 'pick'" class="d-flex align-items-center gap-3 flex-wrap">
+            <RouterLink to="/watchlist" class="d-flex align-items-center gap-2 text-decoration-none">
               <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
                 <path d="M20 1 L39 20 L20 39 L1 20 Z" fill="#7C3AED"/>
               </svg>
               <span style="color:#A855F7;" class="fw-semibold">In deinen Picks</span>
-            </div>
+            </RouterLink>
             <button @click="markAsLook" class="btn btn-look-add btn-sm">
               <svg width="14" height="14" viewBox="0 0 40 40" fill="none" class="me-1">
                 <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
@@ -99,17 +99,19 @@
 
           <!-- Ist ein Look -->
           <div v-else-if="watchlistStatus === 'look'" class="d-flex align-items-center gap-2">
-            <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
-              <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
-              <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
-            </svg>
-            <span style="color:#22D3EE;" class="fw-semibold">In deinen Looks</span>
+            <RouterLink to="/watchlist" class="d-flex align-items-center gap-2 text-decoration-none">
+              <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
+                <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
+                <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
+              </svg>
+              <span style="color:#22D3EE;" class="fw-semibold">In deinen Looks</span>
+            </RouterLink>
             <button @click="removeFromList" class="btn btn-outline-danger btn-sm ms-2">Entfernen</button>
           </div>
         </div>
 
         <!-- Bewertung: NUR wenn der Film ein Look ist -->
-        <div v-if="isAuthenticated && watchlistStatus === 'look'" class="mt-2">
+        <div v-if="isAuthenticated && watchlistStatus === 'look'" class="mt-2" ref="ratingSection">
           <hr style="border-color: rgba(255,255,255,0.1)">
           <h5 class="mb-3">Deine Bewertung</h5>
 
@@ -153,7 +155,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { getMovie, getMyRating, submitRating, getWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus } from '../services/api.js'
@@ -169,6 +171,7 @@ const movie         = ref(null)
 const loading       = ref(true)
 const error         = ref(null)
 const watchlistStatus = ref(null) // null | 'pick' | 'look'
+const ratingSection   = ref(null)
 
 const myRating      = ref(0)
 const hoverRating   = ref(0)
@@ -215,6 +218,8 @@ async function addLook() {
 async function markAsLook() {
   await updateWatchlistStatus(user.value.sub, movie.value.id, 'look')
   watchlistStatus.value = 'look'
+  await nextTick()
+  ratingSection.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
 async function removeFromList() {

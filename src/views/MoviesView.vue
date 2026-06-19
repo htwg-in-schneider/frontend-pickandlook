@@ -2,9 +2,14 @@
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <h2 class="mb-0">🎬 Filme &amp; Serien</h2>
-      <RouterLink v-if="canManageContent" to="/movies/new" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-1"></i>Neu
-      </RouterLink>
+      <div class="d-flex gap-2">
+        <button @click="randomMovie" class="btn btn-outline-light">
+          <i class="bi bi-shuffle me-1"></i>Zufälliger Film
+        </button>
+        <RouterLink v-if="canManageContent" to="/movies/new" class="btn btn-primary">
+          <i class="bi bi-plus-lg me-1"></i>Neu
+        </RouterLink>
+      </div>
     </div>
 
     <!-- Aufgabe b) + e): Suche und Filter -->
@@ -151,6 +156,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
+import { useRouter } from 'vue-router'
 import { getMovies, deleteMovie, getGenres } from '../services/api.js'
 import { useWatchlistStore } from '../stores/watchlist.js'
 
@@ -198,6 +204,14 @@ async function search() {
   } finally {
     loading.value = false
   }
+}
+
+const router = useRouter()
+
+function randomMovie() {
+  if (movies.value.length === 0) return
+  const random = movies.value[Math.floor(Math.random() * movies.value.length)]
+  router.push(`/movies/${random.id}`)
 }
 
 function resetFilters() {

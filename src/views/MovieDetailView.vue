@@ -41,12 +41,10 @@
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-star-fill text-warning"></i>
             <span class="fw-bold fs-5">{{ movie.avgRating }}</span>
-            <span class="text-secondary">/ 10</span>
-            <span class="text-secondary small">(Community)</span>
+            <span class="text-secondary">/ 10 (Community)</span>
           </div>
         </div>
 
-        <!-- Trennlinie -->
         <hr style="border-color: rgba(255,255,255,0.1)">
 
         <!-- Beschreibung -->
@@ -58,19 +56,18 @@
           <p v-else class="text-secondary fst-italic">Keine Beschreibung vorhanden.</p>
         </div>
 
-        <!-- Pick/Look Buttons (nur für eingeloggte User) -->
+        <!-- Pick/Look Buttons -->
         <div v-if="isAuthenticated" class="mb-3">
           <hr style="border-color: rgba(255,255,255,0.1)">
 
-          <!-- Noch nicht in der Liste -->
-          <div v-if="!watchlistStatus" class="d-flex gap-2">
+          <div v-if="!watchlistStatus" class="d-flex gap-2 flex-wrap">
             <button @click="addPick" class="btn btn-pick">
               <svg width="16" height="16" viewBox="0 0 40 40" fill="none" class="me-2">
                 <path d="M20 1 L39 20 L20 39 L1 20 Z" fill="#7C3AED"/>
               </svg>
               Als Pick merken
             </button>
-            <button @click="addLook" class="btn btn-look-add">
+            <button @click="markAsLook" class="btn btn-look-add">
               <svg width="16" height="16" viewBox="0 0 40 40" fill="none" class="me-2">
                 <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
                 <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
@@ -79,7 +76,6 @@
             </button>
           </div>
 
-          <!-- Ist ein Pick -->
           <div v-else-if="watchlistStatus === 'pick'" class="d-flex align-items-center gap-3 flex-wrap">
             <RouterLink to="/watchlist" class="d-flex align-items-center gap-2 text-decoration-none">
               <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
@@ -97,8 +93,7 @@
             <button @click="removeFromList" class="btn btn-outline-danger btn-sm">Entfernen</button>
           </div>
 
-          <!-- Ist ein Look -->
-          <div v-else-if="watchlistStatus === 'look'" class="d-flex align-items-center gap-2">
+          <div v-else-if="watchlistStatus === 'look'" class="d-flex align-items-center gap-2 flex-wrap">
             <RouterLink to="/watchlist" class="d-flex align-items-center gap-2 text-decoration-none">
               <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
                 <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
@@ -106,56 +101,62 @@
               </svg>
               <span style="color:#22D3EE;" class="fw-semibold">In deinen Looks</span>
             </RouterLink>
-            <button @click="removeFromList" class="btn btn-outline-danger btn-sm ms-2">Entfernen</button>
-          </div>
-        </div>
-
-        <!-- Bewertung: NUR wenn der Film ein Look ist -->
-        <div v-if="isAuthenticated && watchlistStatus === 'look'" class="mt-2" ref="ratingSection">
-          <hr style="border-color: rgba(255,255,255,0.1)">
-          <h5 class="mb-3">Deine Bewertung</h5>
-
-          <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
-            <button v-for="n in 10" :key="n"
-                    @click="setRating(n)"
-                    @mouseover="hoverRating = n"
-                    @mouseleave="hoverRating = 0"
-                    class="star-btn"
-                    :title="`${n}/10`">
-              <i :class="['bi', (hoverRating || myRating) >= n ? 'bi-star-fill' : 'bi-star']"
-                 :style="{ color: (hoverRating || myRating) >= n ? '#EAB308' : '#555' }"
-                 style="font-size: 1.5rem;"></i>
+            <button @click="showRatingModal = true" class="btn btn-sm btn-warning ms-2">
+              <i class="bi bi-star me-1"></i>
+              {{ myRating ? `Deine Bewertung: ${myRating}/10` : 'Jetzt bewerten' }}
             </button>
-            <span v-if="myRating" class="ms-2 text-muted small">
-              Du hast {{ myRating }}/10 vergeben
-            </span>
-          </div>
-
-          <div v-if="ratingSuccess" class="alert alert-success py-2 small">
-            <i class="bi bi-check-circle me-1"></i>Bewertung gespeichert!
-          </div>
-          <div v-if="ratingError" class="alert alert-danger py-2 small">
-            <i class="bi bi-exclamation-triangle me-1"></i>{{ ratingError }}
+            <button @click="removeFromList" class="btn btn-outline-danger btn-sm">Entfernen</button>
           </div>
         </div>
 
         <!-- Buttons -->
-        <div class="d-flex gap-3 mt-4">
+        <div class="d-flex gap-3 mt-3">
           <RouterLink v-if="isAdmin" :to="`/movies/${movie.id}/edit`" class="btn btn-primary px-4">
             <i class="bi bi-pencil me-1"></i>Bearbeiten
           </RouterLink>
-          <RouterLink to="/movies" class="btn btn-outline-light">
-            Zurück
-          </RouterLink>
+          <RouterLink to="/movies" class="btn btn-outline-light">Zurück</RouterLink>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bewertungs-Modal -->
+    <div v-if="showRatingModal" class="modal-backdrop-custom" @click.self="showRatingModal = false">
+      <div class="modal-box text-center">
+        <h5 class="mb-1">Wie bewertest du</h5>
+        <p class="text-cyan fw-bold fs-5 mb-3">{{ movie?.titel }}?</p>
+
+        <div class="d-flex justify-content-center gap-1 mb-3 flex-wrap">
+          <button v-for="n in 10" :key="n"
+                  @click="modalRating = n"
+                  @mouseover="hoverRating = n"
+                  @mouseleave="hoverRating = 0"
+                  class="star-btn">
+            <i :class="['bi', (hoverRating || modalRating) >= n ? 'bi-star-fill' : 'bi-star']"
+               :style="{ color: (hoverRating || modalRating) >= n ? '#EAB308' : '#555' }"
+               style="font-size: 1.8rem;"></i>
+          </button>
         </div>
 
+        <p v-if="modalRating" class="text-muted mb-3">{{ modalRating }}/10</p>
+        <p v-else class="text-muted mb-3">Wähle eine Bewertung</p>
+
+        <div class="d-flex gap-2 justify-content-center">
+          <button @click="showRatingModal = false" class="btn btn-outline-light">Überspringen</button>
+          <button @click="submitModalRating" :disabled="!modalRating" class="btn btn-warning px-4">
+            <i class="bi bi-check-lg me-1"></i>Bewertung speichern
+          </button>
+        </div>
+
+        <div v-if="ratingSuccess" class="alert alert-success mt-3 py-2 small">
+          <i class="bi bi-check-circle me-1"></i>Bewertung gespeichert!
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { getMovie, getMyRating, submitRating, getWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus } from '../services/api.js'
@@ -166,17 +167,18 @@ const isAdmin = computed(() => {
   return roles.includes('admin')
 })
 
-const route         = useRoute()
-const movie         = ref(null)
-const loading       = ref(true)
-const error         = ref(null)
-const watchlistStatus = ref(null) // null | 'pick' | 'look'
-const ratingSection   = ref(null)
+const route           = useRoute()
+const movie           = ref(null)
+const loading         = ref(true)
+const error           = ref(null)
+const watchlistStatus = ref(null)
 
-const myRating      = ref(0)
-const hoverRating   = ref(0)
-const ratingSuccess = ref(false)
-const ratingError   = ref(null)
+const myRating        = ref(0)
+const hoverRating     = ref(0)
+const ratingSuccess   = ref(false)
+
+const showRatingModal = ref(false)
+const modalRating     = ref(0)
 
 onMounted(async () => {
   try {
@@ -189,76 +191,56 @@ onMounted(async () => {
   }
 
   if (isAuthenticated.value && user.value) {
-    // Watchlist-Status laden
     try {
       const res = await getWatchlist(user.value.sub)
       const found = res.data.find(i => i.movie.id === movie.value?.id)
       watchlistStatus.value = found ? found.status : null
     } catch { /* ignorieren */ }
 
-    // Eigene Bewertung laden
     try {
       const res = await getMyRating(route.params.id, user.value.sub)
       if (res.status === 200) myRating.value = res.data.stars
-    } catch { /* keine Bewertung vorhanden */ }
+    } catch { /* keine Bewertung */ }
   }
 })
 
 async function addPick() {
-  try {
-    await addToWatchlist(user.value.sub, movie.value.id)
-  } catch { /* ignorieren */ }
+  try { await addToWatchlist(user.value.sub, movie.value.id) } catch { /* ignorieren */ }
   watchlistStatus.value = 'pick'
-}
-
-async function addLook() {
-  try {
-    await addToWatchlist(user.value.sub, movie.value.id)
-    await updateWatchlistStatus(user.value.sub, movie.value.id, 'look')
-  } catch { /* ignorieren */ }
-  watchlistStatus.value = 'look'
-  await nextTick()
-  ratingSection.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
 async function markAsLook() {
   try {
+    if (watchlistStatus.value === null) {
+      await addToWatchlist(user.value.sub, movie.value.id)
+    }
     await updateWatchlistStatus(user.value.sub, movie.value.id, 'look')
   } catch { /* ignorieren */ }
   watchlistStatus.value = 'look'
-  await nextTick()
-  ratingSection.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  modalRating.value = myRating.value || 0
+  showRatingModal.value = true
 }
 
 async function removeFromList() {
-  await removeFromWatchlist(user.value.sub, movie.value.id)
+  try { await removeFromWatchlist(user.value.sub, movie.value.id) } catch { /* ignorieren */ }
   watchlistStatus.value = null
 }
 
-async function setRating(stars) {
-  ratingSuccess.value = false
-  ratingError.value   = null
+async function submitModalRating() {
+  if (!modalRating.value) return
   try {
-    await submitRating(user.value.sub, movie.value.id, stars)
-    myRating.value      = stars
+    await submitRating(user.value.sub, movie.value.id, modalRating.value)
+    myRating.value = modalRating.value
     ratingSuccess.value = true
-    setTimeout(() => { ratingSuccess.value = false }, 3000)
-  } catch (e) {
-    ratingError.value = 'Fehler beim Speichern der Bewertung.'
-  }
+    setTimeout(() => {
+      ratingSuccess.value = false
+      showRatingModal.value = false
+    }, 1500)
+  } catch { /* ignorieren */ }
 }
 </script>
 
 <style scoped>
-.star-btn {
-  background: none;
-  border: none;
-  padding: 0 2px;
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-.star-btn:hover { transform: scale(1.2); }
-
 .btn-pick {
   background: rgba(124,58,237,0.15);
   border: 1px solid #7C3AED;
@@ -268,10 +250,8 @@ async function setRating(stars) {
   border-radius: 8px;
   padding: 6px 14px;
 }
-.btn-pick:hover {
-  background: rgba(124,58,237,0.3);
-  color: #A855F7;
-}
+.btn-pick:hover { background: rgba(124,58,237,0.3); color: #A855F7; }
+
 .btn-look-add {
   background: rgba(34,211,238,0.1);
   border: 1px solid #22D3EE;
@@ -281,8 +261,30 @@ async function setRating(stars) {
   border-radius: 8px;
   padding: 6px 14px;
 }
-.btn-look-add:hover {
-  background: rgba(34,211,238,0.2);
-  color: #22D3EE;
+.btn-look-add:hover { background: rgba(34,211,238,0.2); color: #22D3EE; }
+
+.star-btn {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  transition: transform 0.1s;
 }
+.star-btn:hover { transform: scale(1.2); }
+
+.modal-backdrop-custom {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.modal-box {
+  background: #1A1A2E;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 480px;
+  width: 90%;
+}
+.text-cyan { color: #22D3EE; }
 </style>

@@ -12,13 +12,18 @@
         <button @click="activeTab = 'pick'"
           class="tab-btn d-flex align-items-center gap-2"
           :class="activeTab === 'pick' ? 'tab-active-pick' : 'tab-inactive'">
-          <PickIcon />
+          <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+            <path d="M20 1 L39 20 L20 39 L1 20 Z" fill="#7C3AED"/>
+          </svg>
           <span>Meine Picks <span class="badge-count">{{ picks.length }}</span></span>
         </button>
         <button @click="activeTab = 'look'"
           class="tab-btn d-flex align-items-center gap-2"
           :class="activeTab === 'look' ? 'tab-active-look' : 'tab-inactive'">
-          <LookIcon />
+          <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+            <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
+            <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
+          </svg>
           <span>Meine Looks <span class="badge-count">{{ looks.length }}</span></span>
         </button>
       </div>
@@ -30,7 +35,9 @@
       <!-- Picks -->
       <div v-else-if="activeTab === 'pick'">
         <div v-if="picks.length === 0" class="text-center py-5">
-          <PickIcon :size="48" />
+          <svg width="48" height="48" viewBox="0 0 40 40" fill="none">
+            <path d="M20 1 L39 20 L20 39 L1 20 Z" fill="#7C3AED"/>
+          </svg>
           <p class="text-muted mt-3">Noch keine Picks. Füge Filme hinzu die du schauen möchtest!</p>
           <RouterLink to="/movies" class="btn btn-primary mt-2">Filme entdecken</RouterLink>
         </div>
@@ -43,7 +50,10 @@
                 </span>
                 <div class="d-flex gap-1">
                   <button @click="markAsLook(item.movie)" class="btn btn-sm btn-look" title="Als Look markieren">
-                    <LookIcon :size="16" /> Gesehen
+                    <svg width="14" height="14" viewBox="0 0 40 40" fill="none" style="margin-right:4px">
+                      <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
+                      <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
+                    </svg>Gesehen
                   </button>
                   <button @click="remove(item.movie.id)" class="btn btn-sm btn-outline-danger p-1">
                     <i class="bi bi-x"></i>
@@ -64,7 +74,10 @@
       <!-- Looks -->
       <div v-else-if="activeTab === 'look'">
         <div v-if="looks.length === 0" class="text-center py-5">
-          <LookIcon :size="48" />
+          <svg width="48" height="48" viewBox="0 0 40 40" fill="none">
+            <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
+            <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
+          </svg>
           <p class="text-muted mt-3">Noch keine Looks. Markiere Filme die du bereits geschaut hast!</p>
         </div>
         <div v-else class="row g-3">
@@ -96,23 +109,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { getWatchlist, removeFromWatchlist, updateWatchlistStatus } from '../services/api.js'
-
-// ── Icons ────────────────────────────────────────────
-const PickIcon = {
-  props: { size: { default: 24 } },
-  template: `
-    <svg :width="size" :height="size" viewBox="0 0 40 40" fill="none">
-      <path d="M20 1 L39 20 L20 39 L1 20 Z" fill="#7C3AED"/>
-    </svg>`
-}
-const LookIcon = {
-  props: { size: { default: 24 } },
-  template: `
-    <svg :width="size" :height="size" viewBox="0 0 40 40" fill="none">
-      <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
-      <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
-    </svg>`
-}
 
 const { isAuthenticated, user } = useAuth0()
 const activeTab = ref('pick')

@@ -145,3 +145,16 @@ export function updateAnfrage(id, data) {
 export function deleteAnfrage(id) {
   return api.delete(`/api/anfragen/${id}`)
 }
+
+// ── Kommentare ───────────────────────────────────────
+export function getComments(movieId) {
+  return api.get(`/api/movies/${movieId}/comments`)
+}
+
+export function addComment(movieId, sub, text, username) {
+  return api.post(`/api/movies/${movieId}/comments`, { text, username }, { params: { sub } })
+}
+
+export function deleteComment(movieId, commentId, sub) {
+  return api.delete(`/api/movies/${movieId}/comments/${commentId}`, { params: { sub } })
+}

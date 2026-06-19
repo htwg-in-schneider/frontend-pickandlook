@@ -109,6 +109,47 @@
           </div>
         </div>
 
+        <!-- Kommentare -->
+        <div class="mt-4">
+          <hr style="border-color: rgba(255,255,255,0.1)">
+          <h5 class="mb-3">Kommentare <span class="text-muted small">({{ comments.length }})</span></h5>
+
+          <div v-if="isAuthenticated" class="mb-4">
+            <textarea v-model="newComment" class="form-control mb-2"
+              rows="2" placeholder="Schreib einen Kommentar…" maxlength="1000"
+              style="resize:none;"></textarea>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small">{{ newComment.length }}/1000</span>
+              <button @click="submitComment" :disabled="!newComment.trim()" class="btn btn-primary btn-sm px-4">
+                <i class="bi bi-send me-1"></i>Senden
+              </button>
+            </div>
+          </div>
+          <div v-else class="text-muted small fst-italic mb-3">
+            Logge dich ein um zu kommentieren.
+          </div>
+
+          <div v-if="comments.length === 0" class="text-muted small fst-italic">
+            Noch keine Kommentare. Sei der Erste!
+          </div>
+          <div v-for="c in comments" :key="c.id" class="comment-item mb-3 p-3">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <span class="fw-semibold" style="color:#A855F7;">
+                <i class="bi bi-person-circle me-1"></i>{{ c.username }}
+              </span>
+              <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">{{ formatDate(c.createdAt) }}</span>
+                <button v-if="user && c.auth0Sub === user.sub"
+                  @click="removeComment(c.id)"
+                  class="btn btn-sm btn-outline-danger py-0 px-1" style="font-size:0.7rem;">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+            <p class="mb-0" style="white-space: pre-wrap;">{{ c.text }}</p>
+          </div>
+        </div>
+
         <!-- Buttons -->
         <div class="d-flex gap-3 mt-3">
           <RouterLink v-if="isAdmin" :to="`/movies/${movie.id}/edit`" class="btn btn-primary px-4">
@@ -162,7 +203,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { getMovie, getMyRating, submitRating, getWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus } from '../services/api.js'
+import { getMovie, getMyRating, submitRating, getWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus, getComments, addComment, deleteComment } from '../services/api.js'
 
 const { isAuthenticated, user } = useAuth0()
 const isAdmin = computed(() => {
@@ -182,6 +223,9 @@ const ratingSuccess   = ref(false)
 
 const showRatingModal = ref(false)
 const modalRating     = ref(0)
+
+const comments   = ref([])
+const newComment = ref('')
 
 onMounted(async () => {
   try {
@@ -205,6 +249,12 @@ onMounted(async () => {
       if (res.status === 200) myRating.value = res.data.stars
     } catch { /* keine Bewertung */ }
   }
+
+  // Kommentare laden
+  try {
+    const res = await getComments(route.params.id)
+    comments.value = res.data
+  } catch { /* ignorieren */ }
 })
 
 async function addPick() {
@@ -230,6 +280,29 @@ async function removeFromList() {
 }
 
 const ratingError = ref(null)
+
+async function submitComment() {
+  if (!newComment.value.trim()) return
+  try {
+    const username = user.value?.name || user.value?.email || 'Anonym'
+    const res = await addComment(movie.value.id, user.value.sub, newComment.value.trim(), username)
+    comments.value.unshift(res.data)
+    newComment.value = ''
+  } catch { /* ignorieren */ }
+}
+
+async function removeComment(commentId) {
+  try {
+    await deleteComment(movie.value.id, commentId, user.value.sub)
+    comments.value = comments.value.filter(c => c.id !== commentId)
+  } catch { /* ignorieren */ }
+}
+
+function formatDate(isoStr) {
+  const d = new Date(isoStr)
+  return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+}
 
 async function submitModalRating() {
   if (!modalRating.value) return
@@ -295,4 +368,10 @@ async function submitModalRating() {
   width: 90%;
 }
 .text-cyan { color: #22D3EE; }
+
+.comment-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+}
 </style>

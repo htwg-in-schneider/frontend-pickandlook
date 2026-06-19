@@ -158,3 +158,15 @@ export function addComment(movieId, sub, text, username) {
 export function deleteComment(movieId, commentId, sub) {
   return api.delete(`/api/movies/${movieId}/comments/${commentId}`, { params: { sub } })
 }
+
+export function reportComment(movieId, commentId, sub) {
+  return api.post(`/api/movies/${movieId}/comments/${commentId}/report`, {}, { params: { sub } })
+}
+
+export function adminDeleteComment(commentId, sub) {
+  return api.delete(`/api/comments/${commentId}/admin`, { params: { sub } })
+}
+
+export function getReportedComments() {
+  return api.get('/api/comments/reported')
+}

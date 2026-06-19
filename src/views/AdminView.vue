@@ -216,6 +216,36 @@
         </div>
       </div>
 
+      <!-- Gemeldete Kommentare -->
+      <div class="card p-4 mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0">
+            <i class="bi bi-flag-fill text-danger me-2"></i>Gemeldete Kommentare
+            <span v-if="reportedComments.length > 0" class="badge bg-danger ms-2">{{ reportedComments.length }}</span>
+          </h4>
+        </div>
+        <div v-if="reportedComments.length === 0" class="text-muted small">
+          Keine gemeldeten Kommentare.
+        </div>
+        <div v-else>
+          <div v-for="c in reportedComments" :key="c.id"
+               class="d-flex justify-content-between align-items-start p-3 mb-2 rounded"
+               style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3);">
+            <div>
+              <div class="fw-semibold mb-1" style="color:#A855F7;">
+                <i class="bi bi-person-circle me-1"></i>{{ c.username }}
+                <span class="text-muted small ms-2">in: {{ c.movieTitel }}</span>
+              </div>
+              <p class="mb-1 small">{{ c.text }}</p>
+              <span class="text-muted" style="font-size:0.75rem;">{{ formatDate(c.createdAt) }}</span>
+            </div>
+            <button @click="deleteReportedComment(c.id)" class="btn btn-sm btn-danger ms-3">
+              <i class="bi bi-trash me-1"></i>Löschen
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -223,7 +253,7 @@
 <script setup>
 import { computed, watch, ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { getWatchlistAdmin, getAllUsers, updateUserByAdmin, getStats } from '../services/api.js'
+import { getWatchlistAdmin, getAllUsers, updateUserByAdmin, getStats, getReportedComments, adminDeleteComment } from '../services/api.js'
 
 const { isAuthenticated, user } = useAuth0()
 
@@ -299,12 +329,35 @@ async function loadWatchlistEntries() {
   }
 }
 
+// ── Gemeldete Kommentare ─────────────────────────────
+const reportedComments = ref([])
+
+async function loadReportedComments() {
+  try {
+    const res = await getReportedComments()
+    reportedComments.value = res.data
+  } catch { /* ignorieren */ }
+}
+
+async function deleteReportedComment(commentId) {
+  try {
+    await adminDeleteComment(commentId, user.value.sub)
+    reportedComments.value = reportedComments.value.filter(c => c.id !== commentId)
+  } catch { /* ignorieren */ }
+}
+
+function formatDate(isoStr) {
+  const d = new Date(isoStr)
+  return d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+}
+
 // Laden sobald isAuthenticated true wird
 watch(isAuthenticated, async (val) => {
   if (val) {
     loadStats()
     await loadUsers()
     loadWatchlistEntries()
+    loadReportedComments()
   }
 }, { immediate: true })
 </script>

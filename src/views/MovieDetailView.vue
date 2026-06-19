@@ -132,18 +132,41 @@
           <div v-if="comments.length === 0" class="text-muted small fst-italic">
             Noch keine Kommentare. Sei der Erste!
           </div>
-          <div v-for="c in comments" :key="c.id" class="comment-item mb-3 p-3">
+          <div v-for="c in comments" :key="c.id"
+               class="comment-item mb-3 p-3"
+               :class="{ 'comment-reported': c.reported && isAdmin }">
             <div class="d-flex justify-content-between align-items-start mb-1">
-              <span class="fw-semibold" style="color:#A855F7;">
-                <i class="bi bi-person-circle me-1"></i>{{ c.username }}
-              </span>
+              <div class="d-flex align-items-center gap-2">
+                <span class="fw-semibold" style="color:#A855F7;">
+                  <i class="bi bi-person-circle me-1"></i>{{ c.username }}
+                </span>
+                <span v-if="c.reported && isAdmin" class="badge bg-danger" style="font-size:0.65rem;">
+                  <i class="bi bi-flag-fill me-1"></i>Gemeldet
+                </span>
+              </div>
               <div class="d-flex align-items-center gap-2">
                 <span class="text-muted small">{{ formatDate(c.createdAt) }}</span>
-                <button v-if="user && c.auth0Sub === user.sub"
+                <!-- Admin: kann jeden Kommentar löschen -->
+                <button v-if="isAdmin"
+                  @click="adminRemoveComment(c.id)"
+                  class="btn btn-sm btn-outline-danger py-0 px-1" style="font-size:0.7rem;" title="Als Admin löschen">
+                  <i class="bi bi-trash"></i>
+                </button>
+                <!-- Eigener Kommentar: löschen -->
+                <button v-else-if="user && c.auth0Sub === user.sub"
                   @click="removeComment(c.id)"
                   class="btn btn-sm btn-outline-danger py-0 px-1" style="font-size:0.7rem;">
                   <i class="bi bi-trash"></i>
                 </button>
+                <!-- Fremder Kommentar: melden -->
+                <button v-else-if="isAuthenticated && user && c.auth0Sub !== user.sub && !c.reported"
+                  @click="flagComment(c)"
+                  class="btn btn-sm btn-outline-warning py-0 px-1" style="font-size:0.7rem;" title="Kommentar melden">
+                  <i class="bi bi-flag"></i>
+                </button>
+                <span v-else-if="isAuthenticated && c.reported && !isAdmin" class="text-muted small">
+                  <i class="bi bi-flag-fill"></i> Gemeldet
+                </span>
               </div>
             </div>
             <p class="mb-0" style="white-space: pre-wrap;">{{ c.text }}</p>
@@ -203,7 +226,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { getMovie, getMyRating, submitRating, getWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus, getComments, addComment, deleteComment } from '../services/api.js'
+import { getMovie, getMyRating, submitRating, getWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus, getComments, addComment, deleteComment, reportComment, adminDeleteComment } from '../services/api.js'
 
 const { isAuthenticated, user } = useAuth0()
 const isAdmin = computed(() => {
@@ -298,6 +321,20 @@ async function removeComment(commentId) {
   } catch { /* ignorieren */ }
 }
 
+async function adminRemoveComment(commentId) {
+  try {
+    await adminDeleteComment(commentId, user.value.sub)
+    comments.value = comments.value.filter(c => c.id !== commentId)
+  } catch { /* ignorieren */ }
+}
+
+async function flagComment(comment) {
+  try {
+    await reportComment(movie.value.id, comment.id, user.value.sub)
+    comment.reported = true
+  } catch { /* ignorieren */ }
+}
+
 function formatDate(isoStr) {
   const d = new Date(isoStr)
   return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -373,5 +410,9 @@ async function submitModalRating() {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
+}
+.comment-reported {
+  border-color: rgba(239,68,68,0.4);
+  background: rgba(239,68,68,0.05);
 }
 </style>

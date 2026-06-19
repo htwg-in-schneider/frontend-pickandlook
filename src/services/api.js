@@ -72,8 +72,14 @@ export function deleteGenre(id) {
 }
 
 // ── Watchlist ────────────────────────────────────────
-export function getWatchlist(sub) {
-  return api.get('/api/watchlist', { params: { sub } })
+export function getWatchlist(sub, status = null) {
+  const params = { sub }
+  if (status) params.status = status
+  return api.get('/api/watchlist', { params })
+}
+
+export function updateWatchlistStatus(sub, movieId, status) {
+  return api.put(`/api/watchlist/${movieId}/status`, { status }, { params: { sub } })
 }
 
 export function addToWatchlist(sub, movieId) {

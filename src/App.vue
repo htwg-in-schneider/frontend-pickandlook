@@ -53,6 +53,13 @@
               </RouterLink>
             </li>
 
+            <!-- Meine Listen nur für eingeloggte User -->
+            <li v-if="isAuthenticated" class="nav-item">
+              <RouterLink class="nav-link" to="/my-lists">
+                <i class="bi bi-collection-play me-1"></i>Meine Listen
+              </RouterLink>
+            </li>
+
             <!-- Eingeloggt: Profil + Logout -->
             <li v-if="isAuthenticated" class="nav-item d-flex align-items-center gap-2">
               <RouterLink class="nav-link" to="/profile">

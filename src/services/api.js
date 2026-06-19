@@ -170,3 +170,28 @@ export function adminDeleteComment(commentId, sub) {
 export function getReportedComments() {
   return api.get('/api/comments/reported')
 }
+
+// ── Custom Listen ─────────────────────────────────────
+export function getLists(sub) {
+  return api.get('/api/lists', { params: { sub } })
+}
+
+export function createList(sub, name) {
+  return api.post('/api/lists', { name }, { params: { sub } })
+}
+
+export function renameList(sub, listId, name) {
+  return api.put(`/api/lists/${listId}`, { name }, { params: { sub } })
+}
+
+export function deleteList(sub, listId) {
+  return api.delete(`/api/lists/${listId}`, { params: { sub } })
+}
+
+export function addMovieToList(sub, listId, movieId) {
+  return api.post(`/api/lists/${listId}/movies`, { movieId }, { params: { sub } })
+}
+
+export function removeMovieFromList(sub, listId, movieId) {
+  return api.delete(`/api/lists/${listId}/movies/${movieId}`, { params: { sub } })
+}

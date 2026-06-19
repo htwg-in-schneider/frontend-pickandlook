@@ -109,6 +109,13 @@
           </div>
         </div>
 
+        <!-- Zur Liste hinzufügen -->
+        <div v-if="isAuthenticated" class="mb-3">
+          <button @click="openListModal" class="btn btn-outline-light btn-sm">
+            <i class="bi bi-collection-play me-1"></i>Zur Liste hinzufügen
+          </button>
+        </div>
+
         <!-- Kommentare -->
         <div class="mt-4">
           <hr style="border-color: rgba(255,255,255,0.1)">
@@ -186,6 +193,52 @@
       </div>
     </div>
 
+    <!-- Listen-Modal -->
+    <div v-if="showListModal" class="modal-backdrop-custom" @click.self="showListModal = false">
+      <div class="modal-box">
+        <h5 class="mb-3"><i class="bi bi-collection-play me-2" style="color:#A855F7;"></i>Zur Liste hinzufügen</h5>
+
+        <div v-if="listsLoading" class="text-center py-3">
+          <div class="spinner-border spinner-border-sm" style="color:#7C3AED;"></div>
+        </div>
+
+        <div v-else>
+          <div v-if="userLists.length === 0" class="text-muted small mb-3">
+            Du hast noch keine Listen. Erstelle eine neue!
+          </div>
+
+          <div v-else class="mb-3">
+            <div v-for="list in userLists" :key="list.id"
+                 class="list-item-row d-flex align-items-center justify-content-between p-2 mb-2 rounded"
+                 :class="{ 'list-item-active': isInList(list) }"
+                 @click="toggleList(list)" style="cursor:pointer;">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi" :class="isInList(list) ? 'bi-check-circle-fill text-success' : 'bi-circle'" style="font-size:1.1rem;"></i>
+                <span>{{ list.name }}</span>
+                <span class="text-muted small">({{ list.movies.length }})</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Neue Liste erstellen -->
+          <div class="border-top pt-3 mt-1" style="border-color:rgba(255,255,255,0.1)!important;">
+            <div class="d-flex gap-2">
+              <input v-model="newListNameModal" type="text" class="form-control form-control-sm"
+                     placeholder="Neue Liste erstellen…" maxlength="60"
+                     @keyup.enter="createAndAdd" />
+              <button @click="createAndAdd" :disabled="!newListNameModal.trim()" class="btn btn-sm btn-primary px-3">
+                <i class="bi bi-plus-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+          <button @click="showListModal = false" class="btn btn-outline-light btn-sm">Schließen</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Bewertungs-Modal -->
     <div v-if="showRatingModal" class="modal-backdrop-custom" @click.self="showRatingModal = false">
       <div class="modal-box text-center">
@@ -229,7 +282,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { getMovie, getMyRating, submitRating, getWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus, getComments, addComment, deleteComment, reportComment, adminDeleteComment } from '../services/api.js'
+import { getMovie, getMyRating, submitRating, getWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus, getComments, addComment, deleteComment, reportComment, adminDeleteComment, getLists, createList, addMovieToList, removeMovieFromList } from '../services/api.js'
 
 const { isAuthenticated, user } = useAuth0()
 const isAdmin = computed(() => {
@@ -253,6 +306,12 @@ const modalRating     = ref(0)
 const comments      = ref([])
 const newComment    = ref('')
 const commentError  = ref(null)
+
+// Listen-Modal
+const showListModal    = ref(false)
+const userLists        = ref([])
+const listsLoading     = ref(false)
+const newListNameModal = ref('')
 
 onMounted(async () => {
   try {
@@ -307,6 +366,48 @@ async function removeFromList() {
 }
 
 const ratingError = ref(null)
+
+async function openListModal() {
+  showListModal.value = true
+  listsLoading.value = true
+  newListNameModal.value = ''
+  try {
+    const res = await getLists(user.value.sub)
+    userLists.value = res.data
+  } catch { /* ignorieren */ } finally {
+    listsLoading.value = false
+  }
+}
+
+function isInList(list) {
+  return list.movies.some(m => m.id === movie.value?.id)
+}
+
+async function toggleList(list) {
+  if (isInList(list)) {
+    try {
+      await removeMovieFromList(user.value.sub, list.id, movie.value.id)
+      list.movies = list.movies.filter(m => m.id !== movie.value.id)
+    } catch { /* ignorieren */ }
+  } else {
+    try {
+      const res = await addMovieToList(user.value.sub, list.id, movie.value.id)
+      list.movies = res.data.movies
+    } catch { /* ignorieren */ }
+  }
+}
+
+async function createAndAdd() {
+  if (!newListNameModal.value.trim()) return
+  try {
+    const res = await createList(user.value.sub, newListNameModal.value.trim())
+    const newList = res.data
+    await addMovieToList(user.value.sub, newList.id, movie.value.id)
+    newList.movies = [movie.value]
+    userLists.value.unshift(newList)
+    newListNameModal.value = ''
+  } catch { /* ignorieren */ }
+}
 
 async function submitComment() {
   if (!newComment.value.trim()) return
@@ -421,5 +522,19 @@ async function submitModalRating() {
 .comment-reported {
   border-color: rgba(239,68,68,0.4);
   background: rgba(239,68,68,0.05);
+}
+
+.list-item-row {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: border-color 0.15s, background 0.15s;
+}
+.list-item-row:hover {
+  border-color: rgba(168,85,247,0.4);
+  background: rgba(168,85,247,0.08);
+}
+.list-item-active {
+  border-color: rgba(34,197,94,0.4) !important;
+  background: rgba(34,197,94,0.06) !important;
 }
 </style>

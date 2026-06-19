@@ -124,6 +124,9 @@
                 <i class="bi bi-send me-1"></i>Senden
               </button>
             </div>
+            <div v-if="commentError" class="alert alert-danger py-2 small mt-2">
+              {{ commentError }}
+            </div>
           </div>
           <div v-else class="text-muted small fst-italic mb-3">
             Logge dich ein um zu kommentieren.
@@ -247,8 +250,9 @@ const ratingSuccess   = ref(false)
 const showRatingModal = ref(false)
 const modalRating     = ref(0)
 
-const comments   = ref([])
-const newComment = ref('')
+const comments      = ref([])
+const newComment    = ref('')
+const commentError  = ref(null)
 
 onMounted(async () => {
   try {
@@ -306,12 +310,15 @@ const ratingError = ref(null)
 
 async function submitComment() {
   if (!newComment.value.trim()) return
+  commentError.value = null
   try {
     const username = user.value?.name || user.value?.email || 'Anonym'
     const res = await addComment(movie.value.id, user.value.sub, newComment.value.trim(), username)
     comments.value.unshift(res.data)
     newComment.value = ''
-  } catch { /* ignorieren */ }
+  } catch (e) {
+    commentError.value = 'Fehler: ' + (e.response?.status + ' ' + (e.response?.data?.message || e.message))
+  }
 }
 
 async function removeComment(commentId) {

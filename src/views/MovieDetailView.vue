@@ -62,19 +62,19 @@
           <hr style="border-color: rgba(255,255,255,0.1)">
           <h5 class="mb-3">Deine Bewertung</h5>
 
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <button v-for="n in 5" :key="n"
+          <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+            <button v-for="n in 10" :key="n"
                     @click="setRating(n)"
                     @mouseover="hoverRating = n"
                     @mouseleave="hoverRating = 0"
                     class="star-btn"
-                    :title="`${n} Stern${n > 1 ? 'e' : ''}`">
+                    :title="`${n}/10`">
               <i :class="['bi', (hoverRating || myRating) >= n ? 'bi-star-fill' : 'bi-star']"
                  :style="{ color: (hoverRating || myRating) >= n ? '#EAB308' : '#555' }"
-                 style="font-size: 1.8rem;"></i>
+                 style="font-size: 1.5rem;"></i>
             </button>
             <span v-if="myRating" class="ms-2 text-muted small">
-              Du hast {{ myRating }} {{ myRating === 1 ? 'Stern' : 'Sterne' }} vergeben
+              Du hast {{ myRating }}/10 vergeben
             </span>
           </div>
 

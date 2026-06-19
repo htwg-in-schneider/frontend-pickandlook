@@ -165,7 +165,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { getLists, createList, renameList, deleteList, removeMovieFromList } from '../services/api.js'
 
@@ -180,9 +180,9 @@ const deleteTarget = ref(null)
 const renamingList = ref(false)
 const renameValue  = ref('')
 
-onMounted(async () => {
-  if (isAuthenticated.value && user.value) await loadLists()
-})
+watch(isAuthenticated, async (val) => {
+  if (val) await loadLists()
+}, { immediate: true })
 
 async function loadLists() {
   loading.value = true

@@ -49,7 +49,7 @@
                   {{ item.movie.type === 'serie' ? 'Serie' : 'Film' }}
                 </span>
                 <div class="d-flex gap-1">
-                  <button @click="markAsLook(item.movie)" class="btn btn-sm btn-look" title="Als Look markieren">
+                  <button @click="openRatingModal(item.movie)" class="btn btn-sm btn-look" title="Als Look markieren">
                     <svg width="14" height="14" viewBox="0 0 40 40" fill="none" style="margin-right:4px">
                       <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
                       <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
@@ -102,13 +102,50 @@
         </div>
       </div>
     </div>
+
+    <!-- Bewertungs-Modal -->
+    <div v-if="showRatingModal" class="modal-backdrop-custom" @click.self="closeModal">
+      <div class="modal-box text-center">
+        <h5 class="mb-1">Wie bewertest du</h5>
+        <p class="fw-bold fs-5 mb-3" style="color:#22D3EE;">{{ ratingMovie?.titel }}?</p>
+
+        <div class="d-flex justify-content-center gap-1 mb-3 flex-wrap">
+          <button v-for="n in 10" :key="n"
+                  @click="modalRating = n"
+                  @mouseover="hoverRating = n"
+                  @mouseleave="hoverRating = 0"
+                  class="star-btn">
+            <i :class="['bi', (hoverRating || modalRating) >= n ? 'bi-star-fill' : 'bi-star']"
+               :style="{ color: (hoverRating || modalRating) >= n ? '#EAB308' : '#555' }"
+               style="font-size: 1.8rem;"></i>
+          </button>
+        </div>
+
+        <p v-if="modalRating" class="text-muted mb-3">{{ modalRating }}/10</p>
+        <p v-else class="text-muted mb-3">Wähle eine Bewertung</p>
+
+        <div v-if="ratingError" class="alert alert-danger py-2 small mb-3">
+          <i class="bi bi-exclamation-triangle me-1"></i>{{ ratingError }}
+        </div>
+        <div v-if="ratingSuccess" class="alert alert-success py-2 small mb-3">
+          <i class="bi bi-check-circle me-1"></i>Bewertung gespeichert!
+        </div>
+
+        <div class="d-flex gap-2 justify-content-center">
+          <button @click="closeModal" class="btn btn-outline-light">Überspringen</button>
+          <button @click="submitModalRating" :disabled="!modalRating" class="btn btn-warning px-4">
+            <i class="bi bi-check-lg me-1"></i>Bewertung speichern
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { getWatchlist, removeFromWatchlist, updateWatchlistStatus } from '../services/api.js'
+import { getWatchlist, removeFromWatchlist, updateWatchlistStatus, submitRating } from '../services/api.js'
 
 const { isAuthenticated, user } = useAuth0()
 const activeTab = ref('pick')
@@ -117,6 +154,14 @@ const items = ref([])
 
 const picks = computed(() => items.value.filter(i => i.status === 'pick'))
 const looks = computed(() => items.value.filter(i => i.status === 'look'))
+
+// Rating Modal
+const showRatingModal = ref(false)
+const ratingMovie     = ref(null)
+const modalRating     = ref(0)
+const hoverRating     = ref(0)
+const ratingSuccess   = ref(false)
+const ratingError     = ref(null)
 
 async function load() {
   loading.value = true
@@ -129,16 +174,43 @@ async function load() {
 }
 
 async function remove(movieId) {
-  await removeFromWatchlist(user.value.sub, movieId)
+  try { await removeFromWatchlist(user.value.sub, movieId) } catch { /* ignorieren */ }
   items.value = items.value.filter(i => i.movie.id !== movieId)
 }
 
-async function markAsLook(movie) {
-  await updateWatchlistStatus(user.value.sub, movie.id, 'look')
+async function openRatingModal(movie) {
+  // Status sofort auf look setzen
+  try { await updateWatchlistStatus(user.value.sub, movie.id, 'look') } catch { /* ignorieren */ }
   const item = items.value.find(i => i.movie.id === movie.id)
-  if (item) {
-    item.status = 'look'
-    activeTab.value = 'look'
+  if (item) item.status = 'look'
+  activeTab.value = 'look'
+
+  // Modal öffnen
+  ratingMovie.value  = movie
+  modalRating.value  = 0
+  hoverRating.value  = 0
+  ratingSuccess.value = false
+  ratingError.value  = null
+  showRatingModal.value = true
+}
+
+function closeModal() {
+  showRatingModal.value = false
+  ratingMovie.value = null
+}
+
+async function submitModalRating() {
+  if (!modalRating.value) return
+  ratingError.value = null
+  try {
+    await submitRating(user.value.sub, ratingMovie.value.id, modalRating.value)
+    ratingSuccess.value = true
+    setTimeout(() => {
+      ratingSuccess.value = false
+      closeModal()
+    }, 1500)
+  } catch (e) {
+    ratingError.value = 'Fehler: ' + (e.response?.data?.message || e.message || 'Unbekannter Fehler')
   }
 }
 
@@ -156,25 +228,11 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s;
 }
-.tab-active-pick {
-  background: rgba(124,58,237,0.15);
-  border-color: #7C3AED;
-  color: #A855F7;
-}
-.tab-active-look {
-  background: rgba(34,211,238,0.1);
-  border-color: #22D3EE;
-  color: #22D3EE;
-}
-.tab-inactive {
-  background: transparent;
-  border-color: rgba(255,255,255,0.1);
-  color: #888;
-}
-.tab-inactive:hover {
-  border-color: rgba(255,255,255,0.3);
-  color: #fff;
-}
+.tab-active-pick  { background: rgba(124,58,237,0.15); border-color: #7C3AED; color: #A855F7; }
+.tab-active-look  { background: rgba(34,211,238,0.1);  border-color: #22D3EE; color: #22D3EE; }
+.tab-inactive     { background: transparent; border-color: rgba(255,255,255,0.1); color: #888; }
+.tab-inactive:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+
 .badge-count {
   background: rgba(255,255,255,0.1);
   border-radius: 999px;
@@ -192,8 +250,28 @@ onMounted(() => {
   padding: 2px 8px;
   border-radius: 999px;
 }
-.btn-look:hover {
-  background: rgba(34,211,238,0.2);
-  color: #22D3EE;
+.btn-look:hover { background: rgba(34,211,238,0.2); color: #22D3EE; }
+
+.modal-backdrop-custom {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
 }
+.modal-box {
+  background: #1A1A2E;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 480px;
+  width: 90%;
+}
+.star-btn {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.star-btn:hover { transform: scale(1.2); }
 </style>

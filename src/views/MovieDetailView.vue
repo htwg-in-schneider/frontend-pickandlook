@@ -150,6 +150,9 @@
         <div v-if="ratingSuccess" class="alert alert-success mt-3 py-2 small">
           <i class="bi bi-check-circle me-1"></i>Bewertung gespeichert!
         </div>
+        <div v-if="ratingError" class="alert alert-danger mt-3 py-2 small">
+          <i class="bi bi-exclamation-triangle me-1"></i>{{ ratingError }}
+        </div>
       </div>
     </div>
   </div>
@@ -226,8 +229,11 @@ async function removeFromList() {
   watchlistStatus.value = null
 }
 
+const ratingError = ref(null)
+
 async function submitModalRating() {
   if (!modalRating.value) return
+  ratingError.value = null
   try {
     await submitRating(user.value.sub, movie.value.id, modalRating.value)
     myRating.value = modalRating.value
@@ -236,7 +242,9 @@ async function submitModalRating() {
       ratingSuccess.value = false
       showRatingModal.value = false
     }, 1500)
-  } catch { /* ignorieren */ }
+  } catch (e) {
+    ratingError.value = 'Fehler beim Speichern: ' + (e.response?.data?.message || e.message || 'Unbekannter Fehler')
+  }
 }
 </script>
 

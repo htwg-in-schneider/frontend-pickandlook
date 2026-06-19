@@ -42,6 +42,7 @@
             <i class="bi bi-star-fill text-warning"></i>
             <span class="fw-bold fs-5">{{ movie.avgRating }}</span>
             <span class="text-secondary">/ 10</span>
+            <span class="text-secondary small">(Community)</span>
           </div>
         </div>
 
@@ -57,8 +58,58 @@
           <p v-else class="text-secondary fst-italic">Keine Beschreibung vorhanden.</p>
         </div>
 
-        <!-- UC7: Sternebewertung (1-5 Sterne, nur für eingeloggte User) -->
-        <div v-if="isAuthenticated" class="mt-4">
+        <!-- Pick/Look Buttons (nur für eingeloggte User) -->
+        <div v-if="isAuthenticated" class="mb-3">
+          <hr style="border-color: rgba(255,255,255,0.1)">
+
+          <!-- Noch nicht in der Liste -->
+          <div v-if="!watchlistStatus" class="d-flex gap-2">
+            <button @click="addPick" class="btn btn-pick">
+              <svg width="16" height="16" viewBox="0 0 40 40" fill="none" class="me-2">
+                <path d="M20 1 L39 20 L20 39 L1 20 Z" fill="#7C3AED"/>
+              </svg>
+              Als Pick merken
+            </button>
+            <button @click="addLook" class="btn btn-look-add">
+              <svg width="16" height="16" viewBox="0 0 40 40" fill="none" class="me-2">
+                <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
+                <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
+              </svg>
+              Als Look markieren
+            </button>
+          </div>
+
+          <!-- Ist ein Pick -->
+          <div v-else-if="watchlistStatus === 'pick'" class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+              <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
+                <path d="M20 1 L39 20 L20 39 L1 20 Z" fill="#7C3AED"/>
+              </svg>
+              <span style="color:#A855F7;" class="fw-semibold">In deinen Picks</span>
+            </div>
+            <button @click="markAsLook" class="btn btn-look-add btn-sm">
+              <svg width="14" height="14" viewBox="0 0 40 40" fill="none" class="me-1">
+                <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
+                <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
+              </svg>
+              Gesehen? → Look
+            </button>
+            <button @click="removeFromList" class="btn btn-outline-danger btn-sm">Entfernen</button>
+          </div>
+
+          <!-- Ist ein Look -->
+          <div v-else-if="watchlistStatus === 'look'" class="d-flex align-items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
+              <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="#22D3EE"/>
+              <path d="M20 15 L25 20 L20 25 L15 20 Z" fill="white"/>
+            </svg>
+            <span style="color:#22D3EE;" class="fw-semibold">In deinen Looks</span>
+            <button @click="removeFromList" class="btn btn-outline-danger btn-sm ms-2">Entfernen</button>
+          </div>
+        </div>
+
+        <!-- Bewertung: NUR wenn der Film ein Look ist -->
+        <div v-if="isAuthenticated && watchlistStatus === 'look'" class="mt-2">
           <hr style="border-color: rgba(255,255,255,0.1)">
           <h5 class="mb-3">Deine Bewertung</h5>
 
@@ -87,7 +138,7 @@
         </div>
 
         <!-- Buttons -->
-        <div class="d-flex gap-3 mt-3">
+        <div class="d-flex gap-3 mt-4">
           <RouterLink v-if="isAdmin" :to="`/movies/${movie.id}/edit`" class="btn btn-primary px-4">
             <i class="bi bi-pencil me-1"></i>Bearbeiten
           </RouterLink>
@@ -105,7 +156,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { getMovie, getMyRating, submitRating } from '../services/api.js'
+import { getMovie, getMyRating, submitRating, getWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus } from '../services/api.js'
 
 const { isAuthenticated, user } = useAuth0()
 const isAdmin = computed(() => {
@@ -113,13 +164,14 @@ const isAdmin = computed(() => {
   return roles.includes('admin')
 })
 
-const route        = useRoute()
-const movie        = ref(null)
-const loading      = ref(true)
-const error        = ref(null)
+const route         = useRoute()
+const movie         = ref(null)
+const loading       = ref(true)
+const error         = ref(null)
+const watchlistStatus = ref(null) // null | 'pick' | 'look'
 
-const myRating     = ref(0)
-const hoverRating  = ref(0)
+const myRating      = ref(0)
+const hoverRating   = ref(0)
 const ratingSuccess = ref(false)
 const ratingError   = ref(null)
 
@@ -134,12 +186,41 @@ onMounted(async () => {
   }
 
   if (isAuthenticated.value && user.value) {
+    // Watchlist-Status laden
+    try {
+      const res = await getWatchlist(user.value.sub)
+      const found = res.data.find(i => i.movie.id === movie.value?.id)
+      watchlistStatus.value = found ? found.status : null
+    } catch { /* ignorieren */ }
+
+    // Eigene Bewertung laden
     try {
       const res = await getMyRating(route.params.id, user.value.sub)
       if (res.status === 200) myRating.value = res.data.stars
     } catch { /* keine Bewertung vorhanden */ }
   }
 })
+
+async function addPick() {
+  await addToWatchlist(user.value.sub, movie.value.id)
+  watchlistStatus.value = 'pick'
+}
+
+async function addLook() {
+  await addToWatchlist(user.value.sub, movie.value.id)
+  await updateWatchlistStatus(user.value.sub, movie.value.id, 'look')
+  watchlistStatus.value = 'look'
+}
+
+async function markAsLook() {
+  await updateWatchlistStatus(user.value.sub, movie.value.id, 'look')
+  watchlistStatus.value = 'look'
+}
+
+async function removeFromList() {
+  await removeFromWatchlist(user.value.sub, movie.value.id)
+  watchlistStatus.value = null
+}
 
 async function setRating(stars) {
   ratingSuccess.value = false
@@ -164,4 +245,31 @@ async function setRating(stars) {
   transition: transform 0.1s;
 }
 .star-btn:hover { transform: scale(1.2); }
+
+.btn-pick {
+  background: rgba(124,58,237,0.15);
+  border: 1px solid #7C3AED;
+  color: #A855F7;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 6px 14px;
+}
+.btn-pick:hover {
+  background: rgba(124,58,237,0.3);
+  color: #A855F7;
+}
+.btn-look-add {
+  background: rgba(34,211,238,0.1);
+  border: 1px solid #22D3EE;
+  color: #22D3EE;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 6px 14px;
+}
+.btn-look-add:hover {
+  background: rgba(34,211,238,0.2);
+  color: #22D3EE;
+}
 </style>

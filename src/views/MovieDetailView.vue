@@ -205,18 +205,26 @@ onMounted(async () => {
 })
 
 async function addPick() {
-  await addToWatchlist(user.value.sub, movie.value.id)
+  try {
+    await addToWatchlist(user.value.sub, movie.value.id)
+  } catch { /* ignorieren */ }
   watchlistStatus.value = 'pick'
 }
 
 async function addLook() {
-  await addToWatchlist(user.value.sub, movie.value.id)
-  await updateWatchlistStatus(user.value.sub, movie.value.id, 'look')
+  try {
+    await addToWatchlist(user.value.sub, movie.value.id)
+    await updateWatchlistStatus(user.value.sub, movie.value.id, 'look')
+  } catch { /* ignorieren */ }
   watchlistStatus.value = 'look'
+  await nextTick()
+  ratingSection.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
 async function markAsLook() {
-  await updateWatchlistStatus(user.value.sub, movie.value.id, 'look')
+  try {
+    await updateWatchlistStatus(user.value.sub, movie.value.id, 'look')
+  } catch { /* ignorieren */ }
   watchlistStatus.value = 'look'
   await nextTick()
   ratingSection.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })

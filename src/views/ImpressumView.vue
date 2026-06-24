@@ -6,10 +6,10 @@
 
         <h5>Angaben gemäß § 5 TMG</h5>
         <p>
-          Pick and Look<br>
-          Musterstraße 1<br>
-          70173 Stuttgart<br>
-          Deutschland
+          Hochschule Konstanz<br>
+          Technik, Wirtschaft und Gestaltung<br>
+          Alfred-Wachtel-Str. 8<br>
+          78462 Konstanz
         </p>
 
         <h5>Kontakt</h5>
@@ -19,7 +19,7 @@
         </p>
 
         <h5>Verantwortlich für den Inhalt</h5>
-        <p>Pick and Look Team – Hochschulprojekt</p>
+        <p>Pick and Look Team – Hochschulprojekt HTWG Konstanz</p>
 
         <h5>Haftungsausschluss</h5>
         <p class="text-muted">
